@@ -1,0 +1,45 @@
+{
+  "name": "reviewer",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src test --ext .js,ts --max-warnings 0 ",
+    "fix": "eslint src test --ext .js,ts --max-warnings 0 --fix",
+    "test": "vitest",
+    "coverage": "vitest --coverage",
+    "typecheck": "tsc --pretty --noEmit",
+    "format": "prettier --write .",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.@(ts|tsx)": "bash -c 'tsc --skipLibCheck --noEmit'",
+    "*.@(ts|tsx|js|jsx)": "eslint --max-warnings 0",
+    "*.@(ts|tsx|js|jsx|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.2",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "^5.60.1",
+    "@vitest/coverage-c8": "^0.32.2",
+    "eslint": "^8.43.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-editorconfig": "^4.0.3",
+    "eslint-plugin-jest": "^27.2.2",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "=8.0.3",
+    "lint-staged": "=13.2.1",
+    "prettier": "^2.8.8",
+    "typescript": "^5.1.5",
+    "vite": "^4.3.9",
+    "vitest": "^0.32.2"
+  },
+  "packageManager": "yarn@3.6.0",
+  "volta": {
+    "node": "18.16.1",
+    "yarn": "3.6.0"
+  }
+}

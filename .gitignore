@@ -1,0 +1,30 @@
+# IDEs
+.idea/
+.vscode/
+
+# Node
+node_modules
+dist
+
+# Env
+*.local
+
+# Logs
+logs
+*.log
+
+# Yarn
+.yarn/*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
