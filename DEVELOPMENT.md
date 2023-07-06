@@ -17,10 +17,10 @@ yarn
 Create a `.env` file in the root of the project
 
 ```bash
-cp .env.dist .env
+cp .env.dist .env.local
 ```
 
-Now fill the `.env` file with the correct values.
+Now fill the `.env.local` file with the correct values.
 
 ## Develop
 
