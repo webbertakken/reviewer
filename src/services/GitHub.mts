@@ -59,7 +59,7 @@ export class GitHub {
     )
   }
 
-  async fetchFileContents(httpUrl: string): Promise<string> {
+  private async fetchFileContents(httpUrl: string): Promise<string> {
     const { data: fileContents } = await this.client.request(httpUrl)
     return fileContents
   }
