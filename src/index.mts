@@ -1,10 +1,14 @@
 import 'dotenv/config'
-import { main } from './main.mjs'
+import { hasCorrectConfig } from './config/hasCorrectConfig.mjs'
+import { beHelpfulOnEarliestPullRequest } from './domain/beHelpfulOnEarliestPullRequest.mjs'
 
-main()
-  .then(() => {
-    console.log('Done')
-  })
-  .catch((error) => {
-    console.error('Error', error)
-  })
+const app = async () => {
+  if (!hasCorrectConfig()) return
+
+  await beHelpfulOnEarliestPullRequest()
+}
+
+app().catch((error) => {
+  console.error(error)
+  process.exit(1)
+})

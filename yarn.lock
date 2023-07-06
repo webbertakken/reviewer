@@ -5846,6 +5846,7 @@ __metadata:
   dependencies:
     "@octokit/auth-app": ^5.0.6
     "@octokit/rest": ^19.0.13
+    "@octokit/types": ^10.0.0
     "@types/jest": ^29.5.2
     "@types/node": ^20.4.0
     "@typescript-eslint/eslint-plugin": ^5.60.1
@@ -5867,7 +5868,6 @@ __metadata:
     octokit: ^2.1.0
     prettier: ^2.8.8
     typescript: ^5.1.5
-    vite: ^4.3.9
     vitest: ^0.32.4
   languageName: unknown
   linkType: soft
@@ -6673,7 +6673,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^3.0.0 || ^4.0.0, vite@npm:^4.3.9":
+"vite@npm:^3.0.0 || ^4.0.0":
   version: 4.3.9
   resolution: "vite@npm:4.3.9"
   dependencies:
