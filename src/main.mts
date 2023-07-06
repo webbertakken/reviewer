@@ -23,10 +23,16 @@ export const main = async () => {
     )
     const result = await ghApi.getFileChanges(recentPullRequest.number)
 
-    console.log(result)
+    console.log(result.length + ' files updated')
+
+    const prompt = `please code review the following snippets:
+  `.concat(result.map(file => file.content).join('\n\n'))
+    const response = await (await Gpt.init()).sendMessage('Hello lovely robot!' + prompt)
+
+    console.log(response)
   } catch (error) {
     console.error('Error fetching pull request information:', error)
   }
 
-  const response = (await Gpt.init()).sendMessage('Hello World')
+
 }
