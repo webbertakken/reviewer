@@ -1,8 +1,9 @@
-import { ChatGPTAPI } from 'chatgpt'
+import { ChatGPTAPI, ChatMessage, SendMessageOptions } from 'chatgpt'
 import { config } from '../config/config.mjs'
 
 export class Gpt {
   private readonly client: ChatGPTAPI
+  private options: SendMessageOptions = {}
 
   constructor() {
     const { apiKey } = config.openAi
@@ -11,6 +12,10 @@ export class Gpt {
   }
 
   async ask(prompt: string) {
-    return this.client.sendMessage(prompt)
+    return this.client.sendMessage(prompt, this.options)
+  }
+
+  setOnProgress(onProgress?: (partialResponse: ChatMessage) => void) {
+    this.options.onProgress = onProgress
   }
 }
