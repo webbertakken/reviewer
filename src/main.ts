@@ -16,12 +16,12 @@ export const main = async () => {
 
   try {
     console.log(`Fetching most recent pull request...`)
-    const recentPullRequest = await ghApi.getMostRecentPullRequest()
+    const recentPullRequest = ghApi.getMostRecentPullRequest()
 
     console.log(
       `Fetching file contents and patches for pull request #${recentPullRequest.number}...`,
     )
-    const result = await ghApi.getFileChanges(recentPullRequest.number)
+    const result = ghApi.getFileChanges(recentPullRequest.number)
 
     console.log(result)
   } catch (error) {
