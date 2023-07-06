@@ -20,9 +20,9 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.@(ts|tsx)": "bash -c 'tsc --skipLibCheck --noEmit'",
-    "*.@(ts|tsx|js|jsx)": "eslint --max-warnings 0",
-    "*.@(ts|tsx|js|jsx|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
+    "*.@(ts|tsx|mts)": "bash -c 'tsc --skipLibCheck --noEmit'",
+    "*.@(ts|tsx|mts|js|jsx|mjs|cjs)": "eslint --max-warnings 0",
+    "*.@(ts|tsx|mts|js|jsx|mjs|cjs|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
   },
   "dependencies": {
     "@octokit/auth-app": "^5.0.6",
