@@ -1,10 +1,14 @@
 import 'dotenv/config'
-import { main } from './main.mjs'
+import { checkEnv } from './config/checkEnv.mjs'
+import { beHelpfulOnAPullRequest } from './domain/beHelpfulOnAPullRequest.mjs'
 
-main()
-  .then(() => {
-    console.log('Done')
-  })
-  .catch((error) => {
-    console.error('Error', error)
-  })
+const app = async () => {
+  if (!checkEnv()) return
+
+  await beHelpfulOnAPullRequest()
+}
+
+app().catch((error) => {
+  console.error(error)
+  process.exit(1)
+})

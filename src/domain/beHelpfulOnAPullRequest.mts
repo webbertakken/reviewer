@@ -1,12 +1,10 @@
-import { GitHub } from './logic/github.mjs'
-import { Gpt } from './services/gpt.mjs'
+import { GitHub } from '../services/GitHub.mjs'
+import { Gpt } from '../services/Gpt.mjs'
 
 export const beHelpfulOnAPullRequest = async () => {
   try {
-    const github = new GitHub({
-      repoName: 'reviewer',
-      repoOwner: 'webbertakken',
-    })
+    console.log('Authenticating with Github App...')
+    const github = new GitHub('webbertakken', 'reviewer')
 
     console.log(`Fetching most recent pull request...`)
     const recentPullRequest = await github.getMostRecentPullRequest()

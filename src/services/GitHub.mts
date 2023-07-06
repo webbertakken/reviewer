@@ -1,9 +1,6 @@
-import { ghApi, GitHubApi } from '../services/github-api.mjs'
-
-type GithubApiConfig = {
-  repoName: string
-  repoOwner: string
-}
+import { Octokit } from '@octokit/rest'
+import { createAppAuth } from '@octokit/auth-app'
+import { config } from '../config/config.mjs'
 
 type fileChange = {
   filename: string
@@ -13,26 +10,22 @@ type fileChange = {
 }
 
 export class GitHub {
-  app: GitHubApi
-  meta: {
-    owner: string
-    repo: string
-  }
+  private readonly client: Octokit
+  private readonly meta: { owner: string; repo: string }
+  private readonly installationId: number
 
-  // Authenticates and stores token
-  constructor({ repoName, repoOwner }: GithubApiConfig) {
-    // Todo - use this later to switch `ghApi` between different installations and repos.
-    this.meta = {
-      owner: repoOwner,
-      repo: repoName,
-    }
+  constructor(owner: string, repo: string, installationId = 0) {
+    const { auth } = config.gitHub.api
 
-    this.app = ghApi
+    this.meta = { owner, repo }
+    this.installationId = installationId
+
+    this.client = new Octokit({ authStrategy: createAppAuth, auth })
   }
 
   async getMostRecentPullRequest() {
     try {
-      const response = await this.app.pulls.list({
+      const response = await this.client.pulls.list({
         ...this.meta,
         sort: 'created',
         direction: 'desc',
@@ -53,7 +46,7 @@ export class GitHub {
 
   async getPullRequestInfo(pullRequestNumber: number) {
     try {
-      const response = await this.app.pulls.get({
+      const response = await this.client.pulls.get({
         ...this.meta,
         pull_number: pullRequestNumber,
       })
@@ -68,7 +61,7 @@ export class GitHub {
   // Function to fetch file changes from a pull request
   async getFileChanges(pullRequestNumber: number): Promise<fileChange[]> {
     try {
-      const response = await this.app.pulls.listFiles({
+      const response = await this.client.pulls.listFiles({
         ...this.meta,
         pull_number: pullRequestNumber,
       })
@@ -103,7 +96,7 @@ export class GitHub {
   // Fetches content from the blob http url
   async fetchFileContent(httpUrl: string): Promise<string> {
     try {
-      const response = await this.app.request(httpUrl)
+      const response = await this.client.request(httpUrl)
       return response.data
     } catch (error) {
       console.error('Error fetching file content:', error)
