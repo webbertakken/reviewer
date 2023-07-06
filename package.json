@@ -1,14 +1,18 @@
 {
   "name": "reviewer",
   "private": true,
-  "version": "0.0.0",
-  "type": "commonjs",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": "./index.js",
+  "engines": {
+    "node": ">=16"
+  },
   "scripts": {
-    "dev": "yarn build && concurrently \"yarn build --watch\" \"nodemon -w dist -x node dist/index.js\"",
+    "dev": "yarn build && concurrently \"yarn build --watch\" \"nodemon -w dist -x node dist/index.mjs\"",
     "build": "tsc -p tsconfig.json",
     "preview": "vite preview",
-    "lint": "eslint src test --ext .js,ts --max-warnings 0 ",
-    "fix": "eslint src test --ext .js,ts --max-warnings 0 --fix",
+    "lint": "eslint src test --ext js,ts,mts --max-warnings 0 ",
+    "fix": "eslint src test --ext js,ts,mts --max-warnings 0 --fix",
     "test": "vitest",
     "coverage": "vitest --coverage",
     "typecheck": "tsc --pretty --noEmit",
@@ -16,19 +20,21 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.@(ts|tsx)": "bash -c 'tsc --skipLibCheck --noEmit'",
-    "*.@(ts|tsx|js|jsx)": "eslint --max-warnings 0",
-    "*.@(ts|tsx|js|jsx|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
+    "*.@(ts|tsx|mts)": "bash -c 'tsc --skipLibCheck --noEmit'",
+    "*.@(ts|tsx|mts|js|jsx|mjs|cjs)": "eslint --max-warnings 0",
+    "*.@(ts|tsx|mts|js|jsx|mjs|cjs|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
   },
   "dependencies": {
     "@octokit/auth-app": "^5.0.6",
     "@octokit/rest": "^19.0.13",
     "chatgpt": "^5.2.5",
     "dotenv": "^16.3.1",
+    "esm": "^3.2.25",
     "octokit": "^2.1.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.2",
+    "@types/node": "^20.4.0",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "@vitest/coverage-c8": "^0.32.2",
