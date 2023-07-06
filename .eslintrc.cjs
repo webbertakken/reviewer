@@ -2,14 +2,14 @@ module.exports = {
   env: {
     node: true,
     es2021: true,
-    'jest/globals': true
+    'jest/globals': true,
   },
   extends: [
     'plugin:editorconfig/all',
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:jest/recommended',
-    'prettier'
+    'prettier',
   ],
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint', 'jest', 'editorconfig'],
