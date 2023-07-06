@@ -8,7 +8,7 @@ dist
 
 # Env
 *.local
-.env.local
+.env
 
 # Logs
 logs
