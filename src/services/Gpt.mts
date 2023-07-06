@@ -1,11 +1,16 @@
-import type { ChatGPTAPI } from 'chatgpt'
-
-const apiKey = process.env.OPENAI_API_KEY || ''
+import { ChatGPTAPI } from 'chatgpt'
+import { config } from '../config/config.mjs'
 
 export class Gpt {
-  static async init(): Promise<ChatGPTAPI> {
-    const { ChatGPTAPI } = await import('chatgpt')
+  private readonly client: ChatGPTAPI
 
-    return new ChatGPTAPI({ apiKey })
+  constructor() {
+    const { apiKey } = config.openAi
+
+    this.client = new ChatGPTAPI({ apiKey })
+  }
+
+  async ask(prompt: string) {
+    return this.client.sendMessage(prompt)
   }
 }

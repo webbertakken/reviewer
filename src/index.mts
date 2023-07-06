@@ -1,11 +1,11 @@
 import 'dotenv/config'
-import { checkEnv } from './config/checkEnv.mjs'
-import { beHelpfulOnAPullRequest } from './domain/beHelpfulOnAPullRequest.mjs'
+import { hasCorrectConfig } from './config/hasCorrectConfig.mjs'
+import { beHelpfulOnEarliestPullRequest } from './domain/beHelpfulOnEarliestPullRequest.mjs'
 
 const app = async () => {
-  if (!checkEnv()) return
+  if (!hasCorrectConfig()) return
 
-  await beHelpfulOnAPullRequest()
+  await beHelpfulOnEarliestPullRequest()
 }
 
 app().catch((error) => {

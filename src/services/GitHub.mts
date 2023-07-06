@@ -1,13 +1,15 @@
 import { Octokit } from '@octokit/rest'
 import { createAppAuth } from '@octokit/auth-app'
 import { config } from '../config/config.mjs'
+import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types'
 
-type fileChange = {
-  filename: string
-  content: string
-  patch: string
-  ignored: boolean
-}
+const octokit = new Octokit()
+export type PullRequests = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.list>
+export type PullRequest = PullRequests[number]
+export type PullRequestDetails = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.get>
+
+type PullRequestFilesRaw = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.listFiles>
+export type PullRequestFiles = Array<{ contents: string } & PullRequestFilesRaw[number]>
 
 export class GitHub {
   private readonly client: Octokit
@@ -23,84 +25,42 @@ export class GitHub {
     this.client = new Octokit({ authStrategy: createAppAuth, auth })
   }
 
-  async getMostRecentPullRequest() {
-    try {
-      const response = await this.client.pulls.list({
-        ...this.meta,
-        sort: 'created',
-        direction: 'desc',
-        per_page: 1,
-      })
+  async getMostRecentPr(): Promise<PullRequest | null> {
+    const { data: pullRequests } = await this.client.pulls.list({
+      ...this.meta,
+      sort: 'created',
+      direction: 'desc',
+      per_page: 1,
+    })
 
-      const pullRequests = response.data
-      if (!pullRequests.length) {
-        throw new Error('No pull requests found in the repository')
-      }
-      const mostRecentPullRequest = pullRequests[0]
-      return mostRecentPullRequest
-    } catch (error) {
-      console.error('Error fetching pull requests:', error)
-      throw error
-    }
+    return pullRequests[0] || null
   }
 
-  async getPullRequestInfo(pullRequestNumber: number) {
-    try {
-      const response = await this.client.pulls.get({
-        ...this.meta,
-        pull_number: pullRequestNumber,
-      })
+  async getPrDetails(pullRequestNumber: number): Promise<PullRequestDetails | null> {
+    const { data: pullRequestDetails } = await this.client.pulls.get({
+      ...this.meta,
+      pull_number: pullRequestNumber,
+    })
 
-      return response.data
-    } catch (error) {
-      console.error('Error fetching pull request information:', error)
-      throw error
-    }
+    return pullRequestDetails
   }
 
-  // Function to fetch file changes from a pull request
-  async getFileChanges(pullRequestNumber: number): Promise<fileChange[]> {
-    try {
-      const response = await this.client.pulls.listFiles({
-        ...this.meta,
-        pull_number: pullRequestNumber,
-      })
+  async getPrChangedFiles(pullRequestNumber: number): Promise<PullRequestFiles> {
+    const { data: files } = await this.client.pulls.listFiles({
+      ...this.meta,
+      pull_number: pullRequestNumber,
+    })
 
-      const files: fileChange[] = (await Promise.all(
-        response.data.map(async (file) => {
-          const { filename } = file
-          if (!filename.startsWith('src')) {
-            return {
-              filename,
-              content: '',
-              patch: '',
-              ignored: true,
-            }
-          }
-          return {
-            filename,
-            content: (await this.fetchFileContent(file.raw_url)) || '',
-            patch: file.patch,
-            ignored: false,
-          }
-        }),
-      )) as fileChange[]
-
-      return files.filter((file) => !file.ignored)
-    } catch (error) {
-      console.error('Error fetching file changes:', error)
-      throw error
-    }
+    return Promise.all(
+      files.map(async (file) => ({
+        ...file,
+        contents: await this.fetchFileContents(file.raw_url),
+      })),
+    )
   }
 
-  // Fetches content from the blob http url
-  async fetchFileContent(httpUrl: string): Promise<string> {
-    try {
-      const response = await this.client.request(httpUrl)
-      return response.data
-    } catch (error) {
-      console.error('Error fetching file content:', error)
-      throw error
-    }
+  async fetchFileContents(httpUrl: string): Promise<string> {
+    const { data: fileContents } = await this.client.request(httpUrl)
+    return fileContents
   }
 }

@@ -15,4 +15,7 @@ export const config = {
     },
     actions: {},
   },
+  openAi: {
+    apiKey: process.env.OPENAI_API_KEY || '',
+  },
 }
