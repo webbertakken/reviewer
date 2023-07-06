@@ -14,7 +14,7 @@ export const main = async () => {
     repoOwner: 'webbertakken',
     installationId: '39090441',
     appId: '353840',
-    privateKey: ghAppClientSecret,
+    privateKey: ghAppClientSecret || '',
   })
 
   try {

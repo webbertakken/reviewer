@@ -1,6 +1,7 @@
 import { Octokit } from '@octokit/rest'
 import { createAppAuth } from '@octokit/auth-app'
 
+<<<<<<< HEAD:src/services/github-api.ts
 type GithubApiConfig = {
   repoName: string
   repoOwner: string
@@ -20,6 +21,27 @@ export class GithubApi {
     this.repoName = repoName
     this.repoOwner = repoOwner
     this.token = ''
+=======
+type Props = {
+  repoName: string;
+  repoOwner: string;
+  installationId: string;
+  appId: string;
+  privateKey: string;
+};
+
+export class GithubApp {
+  app: any;
+  token: string;
+  repoName: string;
+  repoOwner: string;
+
+  // Authenticates and stores token
+  constructor({ repoName, repoOwner, installationId, appId, privateKey }: Props) {
+    this.repoName = repoName;
+    this.repoOwner = repoOwner;
+    this.token = '';
+>>>>>>> wip:src/modules/github-app.ts
     this.app = new Octokit({
       authStrategy: createAppAuth,
       auth: {
