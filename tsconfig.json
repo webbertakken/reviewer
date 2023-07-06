@@ -1,24 +1,24 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "ESNext",
     "outDir": "dist",
     "rootDir": "src",
-    "module": "commonjs",
+    "module": "NodeNext",
     "declaration": true,
     "inlineSourceMap": true,
-    "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
+    "esModuleInterop": false /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2015", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "types": ["node"],
     "typeRoots": ["node_modules/@types", "src/types"],
 
     /* Bundler mode */
-    "moduleResolution": "node",
-    //    "allowImportingTsExtensions": true, //
+    "moduleResolution": "NodeNext",
+    //    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     //    "isolatedModules": true, //
-    //    "noEmit": true, //
+    //    "noEmit": true,
 
     /* Linting */
     "strict": true,
@@ -30,7 +30,7 @@
     /* Strict Type-Checking Options */
     "noImplicitAny": true /* Raise error on expressions and declarations with an implied 'any' type. */,
     "noImplicitThis": true /* Raise error on 'this' expressions with an implied 'any' type. */,
-    "alwaysStrict": true /* Parse in strict mode and emit "use strict" for each source file. */,
+    "alwaysStrict": false /* Parse in strict mode and emit "use strict" for each source file. - conflicts with CJS */,
     // "strictNullChecks": true /* Enable strict null checks. */,
     // "strictFunctionTypes": true /* Enable strict checking of function types. */,
     // "strictPropertyInitialization": true /* Enable strict checking of property initialization in classes. */,
@@ -41,7 +41,7 @@
     "listFiles": false /* Print names of files part of the compilation. */,
     "pretty": true /* Stylize errors and messages using color and context. */
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.mts"],
   "exclude": ["node_modules/**"],
   "compileOnSave": false
 }

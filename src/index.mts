@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { main } from './main'
+import { main } from './main.mjs'
 
 main()
   .then(() => {

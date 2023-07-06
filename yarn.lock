@@ -1656,6 +1656,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^20.4.0":
+  version: 20.4.0
+  resolution: "@types/node@npm:20.4.0"
+  checksum: 8ad632ee131611651fc5f4ac3a47427640e2492ab314fe1c4d0c3b97af71784ef48c53221d5f9922aab4724375dcb4f33137b3107ba2c356d9366216a31678aa
+  languageName: node
+  linkType: hard
+
 "@types/normalize-package-data@npm:^2.4.1":
   version: 2.4.1
   resolution: "@types/normalize-package-data@npm:2.4.1"
@@ -3171,6 +3178,13 @@ __metadata:
   bin:
     eslint: bin/eslint.js
   checksum: 55654ce00b0d128822b57526e40473d0497c7c6be3886afdc0b41b6b0dfbd34d0eae8159911b18451b4db51a939a0e6d2e117e847ae419086884fc3d4fe23c7c
+  languageName: node
+  linkType: hard
+
+"esm@npm:^3.2.25":
+  version: 3.2.25
+  resolution: "esm@npm:3.2.25"
+  checksum: 978aabe2de83541c105605a6d60a26ed8e627ef6bb0a7605fe15a95bbdea6b8348bd045255cb22219c054dd09a81a94823df00843d9e97f42419c92015ce3a64
   languageName: node
   linkType: hard
 
@@ -5833,6 +5847,7 @@ __metadata:
     "@octokit/auth-app": ^5.0.6
     "@octokit/rest": ^19.0.13
     "@types/jest": ^29.5.2
+    "@types/node": ^20.4.0
     "@typescript-eslint/eslint-plugin": ^5.60.1
     "@typescript-eslint/parser": ^5.60.1
     "@vitest/coverage-c8": ^0.32.2
@@ -5844,6 +5859,7 @@ __metadata:
     eslint-plugin-editorconfig: ^4.0.3
     eslint-plugin-jest: ^27.2.2
     eslint-plugin-prettier: ^4.2.1
+    esm: ^3.2.25
     husky: =8.0.3
     jest: ^29.6.0
     lint-staged: =13.2.1

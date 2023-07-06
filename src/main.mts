@@ -1,7 +1,7 @@
 // import { updateInstances } from './logic/update-instances'
 import { GithubApi } from './services/github-api'
-// import { gpt } from './services/gpt'
-import { checkEnv } from './logic/check-env'
+import { Gpt } from './services/gpt.mjs'
+import { checkEnv } from './logic/check-env.mjs'
 
 export const main = async () => {
   if (!checkEnv()) return
@@ -28,5 +28,5 @@ export const main = async () => {
     console.error('Error fetching pull request information:', error)
   }
 
-  // console.log(gpt)
+  const response = (await Gpt.init()).sendMessage('Hello World')
 }
