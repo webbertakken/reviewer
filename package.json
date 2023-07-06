@@ -24,6 +24,9 @@
     "*.@(ts|tsx|mts|js|jsx|mjs|cjs)": "eslint --max-warnings 0",
     "*.@(ts|tsx|mts|js|jsx|mjs|cjs|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
   },
+  "nodemonConfig": {
+    "delay": 100
+  },
   "dependencies": {
     "@octokit/auth-app": "^5.0.6",
     "@octokit/rest": "^19.0.13",
