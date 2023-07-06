@@ -18,7 +18,7 @@ export const main = async () => {
   })
 
   try {
-    const result = await ghApi.getPullRequestInfo(47)
+    const result = await ghApi.getFileChanges(4)
     console.log(result)
   } catch (error) {
     console.error('Error fetching pull request information:', error)
