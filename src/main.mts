@@ -1,5 +1,5 @@
-// import { updateInstances } from './logic/update-instances'
-import { GithubApi } from './services/github-api'
+// import { updateInstances } from './logic/update-instances.mjs'
+import { GithubApi } from './services/github-api.mjs'
 import { Gpt } from './services/gpt.mjs'
 import { checkEnv } from './logic/check-env.mjs'
 

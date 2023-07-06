@@ -1,7 +1,11 @@
-import { Octokit } from '@octokit/rest'
-import { createAppAuth } from '@octokit/auth-app'
-import path from 'path'
-import fs from 'fs'
+import {Octokit} from '@octokit/rest'
+import {createAppAuth} from '@octokit/auth-app'
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import {fileURLToPath} from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 type GithubApiConfig = {
   repoName: string
@@ -23,8 +27,7 @@ type fileChange = {
 
 function readGithubPemKey() {
   const filePath = path.join(__dirname, `../../pr-code-reviewer.private-key.pem`)
-  const fileData = fs.readFileSync(filePath, 'utf8')
-  return fileData
+  return fs.readFileSync(filePath, 'utf8')
 }
 
 // --------------------------------------------
