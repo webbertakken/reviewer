@@ -11,11 +11,23 @@ type GithubApiConfig = {
   privateKey: string
 }
 
+type fileChange = {
+  filename: string
+  content: string
+  patch: string
+  ignored: boolean
+}
+
+// helpers move it away ...
+// --------------------------------------------
+
 function readGithubPemKey() {
   const filePath = path.join(__dirname, `../../pr-code-reviewer.private-key.pem`)
   const fileData = fs.readFileSync(filePath, 'utf8')
   return fileData
 }
+
+// --------------------------------------------
 
 const ghApiKey = readGithubPemKey()
 
@@ -47,7 +59,28 @@ export class GithubApi {
     })
   }
 
-  async getPullRequestInfo(pullRequestNumber: number) {
+  async getMostRecentPullRequest() {
+    try {
+      const response = await this.app.pulls.list({
+        ...this.meta,
+        sort: 'created',
+        direction: 'desc',
+        per_page: 1,
+      })
+
+      const pullRequests = response.data
+      if (!pullRequests.length) {
+        throw new Error('No pull requests found in the repository')
+      }
+      const mostRecentPullRequest = pullRequests[0]
+      return mostRecentPullRequest
+    } catch (error) {
+      console.error('Error fetching pull requests:', error)
+      throw error
+    }
+  }
+
+  async getPullRequestInfo(pullRequestNumber: number): Promise<any> {
     try {
       const response = await this.app.pulls.get({
         ...this.meta,
@@ -62,7 +95,7 @@ export class GithubApi {
   }
 
   // Function to fetch file changes from a pull request
-  async getFileChanges(pullRequestNumber: number) {
+  async getFileChanges(pullRequestNumber: number): Promise<fileChange[]> {
     try {
       const response = await this.app.pulls.listFiles({
         ...this.meta,
@@ -71,23 +104,38 @@ export class GithubApi {
 
       const files = await Promise.all(
         response.data.map(async (file: any) => {
-          const fileResponse = await this.app.repos.getContent({
-            ...this.meta,
-            path: file.filename,
-            ref: file.sha,
-          })
-
-          const content = Buffer.from(fileResponse.data.content, 'base64').toString()
+          const { filename } = file
+          if (!filename.startsWith('src')) {
+            return {
+              filename,
+              content: '',
+              patch: '',
+              ignored: true,
+            }
+          }
           return {
-            filename: file.filename,
-            content: content,
+            filename,
+            content: await this.fetchFileContent(file.raw_url),
+            patch: file.patch,
+            ignored: false,
           }
         }),
       )
 
-      return files
+      return files.filter((file: any) => !file.ignored)
     } catch (error) {
       console.error('Error fetching file changes:', error)
+      throw error
+    }
+  }
+
+  // Fetches content from the blob http url
+  async fetchFileContent(httpUrl: string): Promise<string> {
+    try {
+      const response = await this.app.request(httpUrl)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching file content:', error)
       throw error
     }
   }
