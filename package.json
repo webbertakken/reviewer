@@ -48,5 +48,9 @@
   "volta": {
     "node": "18.16.1",
     "yarn": "3.6.0"
+  },
+  "dependencies": {
+    "@octokit/auth-app": "^5.0.6",
+    "@octokit/rest": "^19.0.13"
   }
 }
