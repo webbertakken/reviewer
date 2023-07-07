@@ -10,7 +10,7 @@ describe('Triggers', () => {
         name: 'pull_request',
         payload: {
           pull_request: {
-            number: 1,
+            number: 9,
             title: 'title',
             body: 'body',
           },

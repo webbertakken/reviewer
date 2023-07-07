@@ -6,6 +6,8 @@ export const config = {
     verbose: process.env.APP_VERBOSE === 'true',
   },
   gitHub: {
+    owner: 'webbertakken',
+    repo: 'reviewer',
     app: {
       name: 'PR Code Reviewer',
       handle: 'pr-code-reviewer[bot]',

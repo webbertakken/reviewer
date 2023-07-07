@@ -14,18 +14,28 @@ export type PullRequestComments = GetResponseDataTypeFromEndpointMethod<
 type PullRequestFilesRaw = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.listFiles>
 export type PullRequestFiles = Array<{ contents: string } & PullRequestFilesRaw[number]>
 
+let instance: GitHub | null = null
+
 export class GitHub {
   private readonly client: Octokit
   private readonly meta: { owner: string; repo: string }
-  private readonly installationId: number
 
-  constructor(owner: string, repo: string, installationId = 0) {
+  constructor() {
     const { auth } = config.gitHub.api
+    const { owner, repo } = config.gitHub
 
     this.meta = { owner, repo }
-    this.installationId = installationId
 
     this.client = new Octokit({ authStrategy: createAppAuth, auth })
+  }
+
+  // Singleton
+  static getInstance() {
+    if (instance) {
+      return instance
+    }
+    instance = new GitHub()
+    return instance
   }
 
   async getMostRecentPr(): Promise<PullRequest | null> {
