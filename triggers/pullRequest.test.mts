@@ -19,6 +19,6 @@ describe('Triggers', () => {
 
       // Act
       await PullRequestTriggers.onOpened(event)
-    })
+    }, 20000)
   })
 })

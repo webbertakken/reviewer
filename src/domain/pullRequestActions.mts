@@ -71,19 +71,17 @@ export const pullRequestActions = (event: EmitterWebhookEvent<'pull_request'>) =
       </sup></sub>
       `
 
-      const prReviews = await GitHub.getInstance().getCommentsByUser(
-        number,
-        config.gitHub.app.handle,
-      )
+      const github = GitHub.getInstance()
+      const prReviews = await github.getCommentsByUser(number, config.gitHub.app.handle)
       if (prReviews.length === 0) {
         console.log(`Submiting review for the first time at PR #${number}.`)
-        // await github.placeComment(number, comment)
+        await github.placeComment(number, comment)
         return
       }
 
       // TODO - check if the bot review is the most recent
       console.log(`Updating review for PR #${number}.`)
-      // await github.updateComment(prReviews[0].id, comment)
+      await github.updateComment(prReviews[0].id, comment)
 
       console.log('Done!')
 
