@@ -1,8 +1,15 @@
 # Development
 
+## Resources
+
+- [PR Code Reviewer (GitHub App)](https://github.com/apps/pr-code-reviewer)
+- GitHub App client [docs](https://github.com/octokit/octokit.js#app-client)
+- GitHub API client [docs](https://github.com/octokit/octokit.js#octokit-api-client)
+- Webhook [events and payloads](https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads)
+
 ## Prerequisites
 
-- Volta
+- Volta (a lightweight zero-config tool manager, [installation](https://docs.volta.sh/guide/getting-started#installation))
 
 ## Setup
 
@@ -14,13 +21,13 @@ yarn
 
 ### Environment variables
 
-Create a `.env.local` file in the root of the project
+Create a `.env` file in the root of the project
 
 ```bash
-cp .env.local.dist .env.local
+cp .env.dist .env
 ```
 
-Now fill the `.env.local` file with the correct values.
+Now fill the `.env` file with the correct values.
 
 ## Develop
 
@@ -28,11 +35,21 @@ Now fill the `.env.local` file with the correct values.
 yarn dev
 ```
 
-## Deploy
+or trigger specific events using the triggers
 
 ```bash
-firebase deploy
+yarn test triggers/pullRequest
 ```
+
+## Test
+
+```bash
+yarn coverage
+```
+
+## Deploy
+
+TBD
 
 ## Upgrading tools
 
