@@ -22,8 +22,8 @@
   },
   "lint-staged": {
     "*.@(ts|tsx|mts)": "bash -c 'tsc --skipLibCheck --noEmit'",
-    "*.@(ts|tsx|mts|js|jsx|mjs|cjs)": "eslint --max-warnings 0",
-    "*.@(ts|tsx|mts|js|jsx|mjs|cjs|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
+    "*.@(ts|tsx|mts|js|jsx|mjs)": "eslint --max-warnings 0",
+    "*.@(ts|tsx|mts|js|jsx|mjs|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
   },
   "nodemonConfig": {
     "delay": 100
