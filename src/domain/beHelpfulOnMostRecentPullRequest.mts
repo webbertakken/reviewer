@@ -1,7 +1,7 @@
 import { GitHub } from '../services/GitHub.mjs'
 import { Gpt } from '../services/Gpt.mjs'
 
-export const beHelpfulOnEarliestPullRequest = async () => {
+export const beHelpfulOnMostRecentPullRequest = async () => {
   try {
     console.log('Authenticating with Github...')
     const github = new GitHub('webbertakken', 'reviewer')
