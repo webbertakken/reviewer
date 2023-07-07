@@ -2,9 +2,6 @@
 .idea/
 .vscode/
 
-# Secrets
-*.pem
-
 # Node
 node_modules
 dist
@@ -16,6 +13,9 @@ dist
 # Secrets
 *.pem
 *.key
+
+# Tests
+coverage
 
 # Logs
 logs

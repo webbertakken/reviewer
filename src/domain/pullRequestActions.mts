@@ -1,5 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
 import { config } from '../config/config.mjs'
+import { dedent } from 'ts-dedent'
 
 type Suggestions = {
   description: string
@@ -17,6 +18,8 @@ export const pullRequestActions = (event: EmitterWebhookEvent<'pull_request'>) =
   }
 
   return {
+    suggestions,
+
     async reviewTitleAndDescription() {
       const { title, body } = event.payload.pull_request
       if (title.length < 10) {
@@ -47,8 +50,9 @@ export const pullRequestActions = (event: EmitterWebhookEvent<'pull_request'>) =
 
       if (suggestions.code.length >= 1) {
         const mostImportantComments = suggestions.code.slice(0, 3)
-        feedback.push(`<ul>
-          ${mostImportantComments.map((comment) => `  <li>${comment}</li>`).join('\n')}
+        feedback.push(dedent`
+        <ul>
+          ${mostImportantComments.map((comment) => `<li>${comment}</li>`).join('\n')}
         </ul>`)
       }
 
@@ -60,14 +64,14 @@ export const pullRequestActions = (event: EmitterWebhookEvent<'pull_request'>) =
         feedback.push(`<p>Everything looks good!</p>`)
       }
 
-      const comment = `
+      const comment = dedent`
       ## :wave: Hi there!
 
-      ${feedback}
+      ${feedback.join('\n\n')}
 
       <sub><sup>
-      This comment was placed by a bot using ${config.model.name} v${config.model.version}.
-      Feedback about this comment? Please don't hesitate to drop me an email at [webber@takken.io](mailto:webber@takken.io).
+      Automatically generated with the help of ${config.model.name} v${config.model.version}.
+      Feedback? Please don't hesitate to drop me an email at [webber@takken.io](mailto:webber@takken.io).
       </sup></sub>
       `
 

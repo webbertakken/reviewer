@@ -35,6 +35,18 @@ Now fill the `.env` file with the correct values.
 yarn dev
 ```
 
+or trigger specific events using the triggers
+
+```bash
+yarn test triggers/pullRequest
+```
+
+## Test
+
+```bash
+yarn coverage
+```
+
 ## Deploy
 
 TBD
