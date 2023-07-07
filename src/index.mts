@@ -6,25 +6,29 @@ import { App as GitHubApp, createNodeMiddleware } from 'octokit'
 import { PullRequestTriggers } from './domain/triggers/PullRequestTriggers.mjs'
 
 const app = async () => {
-  if (!hasCorrectConfig()) return
+  if (hasCorrectConfig()) {
+    const { appId, privateKey, webhooks, oauth } = config.gitHub.app
 
-  const { appId, privateKey, webhooks, oauth } = config.gitHub.app
+    // Initialize the GitHub App
+    const app = new GitHubApp({ appId, privateKey, webhooks, oauth })
+    if (config.app.verbose) {
+      app.webhooks.onAny((event) => console.log(`${event.name} (${event.id})`, event.payload))
+      app.webhooks.onError(({ name, event, message }) =>
+        console.error(name, message, event.payload),
+      )
+    }
 
-  // Initialize the GitHub App
-  const app = new GitHubApp({ appId, privateKey, webhooks, oauth })
-  if (config.app.verbose) {
-    app.webhooks.onAny((event) => console.log(`${event.name} (${event.id})`, event.payload))
-    app.webhooks.onError(({ name, event, message }) => console.error(name, message, event.payload))
+    // Controller
+    app.webhooks.on('pull_request.synchronize', PullRequestTriggers.onSynchronise)
+    app.webhooks.on('pull_request.opened', PullRequestTriggers.onOpened)
+    app.webhooks.on('pull_request.reopened', PullRequestTriggers.onReopened)
+    app.webhooks.on('pull_request.edited', PullRequestTriggers.onEdited)
+
+    // Listen for events
+    createServer(createNodeMiddleware(app)).listen(config.app.port)
+  } else {
+    console.error('Missing configuration')
   }
-
-  // Controller
-  app.webhooks.on('pull_request.synchronize', PullRequestTriggers.onSynchronise)
-  app.webhooks.on('pull_request.opened', PullRequestTriggers.onOpened)
-  app.webhooks.on('pull_request.reopened', PullRequestTriggers.onReopened)
-  app.webhooks.on('pull_request.edited', PullRequestTriggers.onEdited)
-
-  // Listen for events
-  createServer(createNodeMiddleware(app)).listen(config.app.port)
 }
 
 app().catch((error) => {
