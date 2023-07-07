@@ -1,5 +1,6 @@
 import { GitHub } from '../services/GitHub.mjs'
 import { Gpt } from '../services/Gpt.mjs'
+import { beHelpfulOnMergeRequest } from './beHelpfulOnMergeRequest.mjs'
 
 export const beHelpfulOnMostRecentPullRequest = async () => {
   try {
@@ -17,22 +18,7 @@ export const beHelpfulOnMostRecentPullRequest = async () => {
       return
     }
 
-    // Gather information about the PR
-    console.log(`Fetching changed files for #${pr.number}...`)
-    const changedFiles = await github.getPrChangedFiles(pr.number)
-    console.log(changedFiles.length + ' files were updated.')
-
-    // Get input from GPT
-    console.log('Asking GPT to help review the PR...')
-    const prompt = `please code review the following changes: `.concat(
-      changedFiles.map((file) => file.patch).join('\n\n'),
-    )
-    const response = await gpt.ask(prompt)
-
-    // Todo - parse input into something post-worthy
-
-    // Todo - post a comment on the PR
-    console.log(response)
+    await beHelpfulOnMergeRequest(pr.number)
   } catch (error) {
     console.error('Error fetching pull request information:', error)
   }

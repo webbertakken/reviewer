@@ -4,6 +4,7 @@ import { createServer } from 'node:http'
 import { config } from './config/config.mjs'
 import { App as GitHubApp, createNodeMiddleware } from 'octokit'
 import { PullRequestTriggers } from './domain/triggers/PullRequestTriggers.mjs'
+import { beHelpfulOnMergeRequest } from './domain/beHelpfulOnMergeRequest.mjs'
 
 const app = async () => {
   if (!hasCorrectConfig()) return
@@ -25,6 +26,7 @@ const app = async () => {
 
   // Listen for events
   createServer(createNodeMiddleware(app)).listen(config.app.port)
+  await beHelpfulOnMergeRequest(9)
 }
 
 app().catch((error) => {

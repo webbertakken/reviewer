@@ -8,7 +8,7 @@ export const config = {
   gitHub: {
     app: {
       name: 'PR Code Reviewer',
-      handle: 'pr-code-reviewer',
+      handle: 'pr-code-reviewer[bot]',
       appId: '353840',
       privateKey: process.env.GH_APP_CLIENT_SECRET || '',
       webhooks: {
