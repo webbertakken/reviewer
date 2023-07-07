@@ -12,6 +12,10 @@ export class Gpt {
   }
 
   async ask(prompt: string) {
+    if (process.env.MOCK_GPT === 'true') {
+      console.log(`Using mock GPT ask:\n${prompt}\n`)
+      return "I'm a mock GPT response"
+    }
     return this.client.sendMessage(prompt, this.options)
   }
 

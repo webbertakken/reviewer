@@ -24,8 +24,8 @@ export const beHelpfulOnMostRecentPullRequest = async () => {
 
     // Get input from GPT
     console.log('Asking GPT to help review the PR...')
-    const prompt = `please code review the following snippets: `.concat(
-      changedFiles.map((file) => file.contents).join('\n\n'),
+    const prompt = `please code review the following changes: `.concat(
+      changedFiles.map((file) => file.patch).join('\n\n'),
     )
     const response = await gpt.ask(prompt)
 
