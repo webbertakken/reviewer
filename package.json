@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "yarn build && concurrently \"yarn build --watch\" \"nodemon -w dist -x node dist/index.mjs\"",
+    "dev:mock": "cross-env MOCK_GPT=true yarn dev",
     "build": "tsc -p tsconfig.json",
     "preview": "vite preview",
     "lint": "eslint src test --ext js,ts,mts --max-warnings 0 ",
@@ -45,6 +46,7 @@
     "@typescript-eslint/parser": "^5.60.1",
     "@vitest/coverage-c8": "^0.32.2",
     "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-editorconfig": "^4.0.3",

@@ -7,22 +7,35 @@ const octokit = new Octokit()
 export type PullRequests = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.list>
 export type PullRequest = PullRequests[number]
 export type PullRequestDetails = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.get>
+export type PullRequestComments = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.issues.listComments
+>
 
 type PullRequestFilesRaw = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.listFiles>
 export type PullRequestFiles = Array<{ contents: string } & PullRequestFilesRaw[number]>
 
+let instance: GitHub | null = null
+
 export class GitHub {
   private readonly client: Octokit
   private readonly meta: { owner: string; repo: string }
-  private readonly installationId: number
 
-  constructor(owner: string, repo: string, installationId = 0) {
+  constructor() {
     const { auth } = config.gitHub.api
+    const { owner, repo } = config.gitHub
 
     this.meta = { owner, repo }
-    this.installationId = installationId
 
     this.client = new Octokit({ authStrategy: createAppAuth, auth })
+  }
+
+  // Singleton
+  static getInstance() {
+    if (instance) {
+      return instance
+    }
+    instance = new GitHub()
+    return instance
   }
 
   async getMostRecentPr(): Promise<PullRequest | null> {
@@ -34,6 +47,39 @@ export class GitHub {
     })
 
     return pullRequests[0] || null
+  }
+
+  async getCommentsByUser(
+    pullRequestNumber: number,
+    userName: string,
+  ): Promise<PullRequestComments> {
+    const response = await this.client.issues.listComments({
+      ...this.meta,
+      issue_number: pullRequestNumber,
+    })
+
+    const reviews = response.data.filter((review) => {
+      return review.user && review.user.login === userName
+    })
+
+    return reviews
+  }
+
+  // Function to place a comment by the bot-reviewer
+  async placeComment(pullRequestNumber: number, comment: string) {
+    await this.client.issues.createComment({
+      ...this.meta,
+      issue_number: pullRequestNumber,
+      body: comment,
+    })
+  }
+
+  async updateComment(commentId: number, comment: string) {
+    await this.client.issues.updateComment({
+      ...this.meta,
+      comment_id: commentId,
+      body: comment,
+    })
   }
 
   async getPrDetails(pullRequestNumber: number): Promise<PullRequestDetails | null> {
