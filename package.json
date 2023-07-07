@@ -12,8 +12,8 @@
     "dev:mock": "cross-env MOCK_GPT=true yarn dev",
     "build": "tsc -p tsconfig.json",
     "preview": "vite preview",
-    "lint": "eslint src test --ext js,ts,mts --max-warnings 0 ",
-    "fix": "eslint src test --ext js,ts,mts --max-warnings 0 --fix",
+    "lint": "eslint src triggers --ext js,ts,mts --max-warnings 0 ",
+    "fix": "eslint src triggers --ext js,ts,mts --max-warnings 0 --fix",
     "test": "vitest",
     "coverage": "vitest --coverage",
     "typecheck": "tsc --pretty --noEmit",
@@ -22,8 +22,8 @@
   },
   "lint-staged": {
     "*.@(ts|tsx|mts)": "bash -c 'tsc --skipLibCheck --noEmit'",
-    "*.@(ts|tsx|mts|js|jsx|mjs|cjs)": "eslint --max-warnings 0",
-    "*.@(ts|tsx|mts|js|jsx|mjs|cjs|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
+    "*.@(ts|tsx|mts|js|jsx|mjs)": "eslint --max-warnings 0",
+    "*.@(ts|tsx|mts|js|jsx|mjs|json|jsonc|json5|md|mdx|yaml|yml)": "prettier --write"
   },
   "nodemonConfig": {
     "delay": 100
@@ -45,6 +45,7 @@
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "@vitest/coverage-c8": "^0.32.2",
+    "@vitest/coverage-v8": "^0.33.0",
     "concurrently": "^8.2.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.43.0",

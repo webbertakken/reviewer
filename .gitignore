@@ -23,6 +23,7 @@ logs
 
 # Yarn
 .yarn/*
+!.yarn/releases
 yarn-debug.log*
 yarn-error.log*
 

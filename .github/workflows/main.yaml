@@ -1,0 +1,43 @@
+name: Deploy 🚢
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: package.json
+          cache: 'yarn'
+
+      - name: Install deps
+        run: yarn install --frozen-lockfile --immutable
+
+      - name: Tests
+        run: yarn coverage --dir src
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Code styles
+        run: yarn lint
+
+      - name: Formatting
+        run: yarn prettier --check .
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Build
+        run: yarn build
+
+      # todo - deploy
