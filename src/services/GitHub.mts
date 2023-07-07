@@ -2,7 +2,6 @@ import { Octokit } from '@octokit/rest'
 import { createAppAuth } from '@octokit/auth-app'
 import { config } from '../config/config.mjs'
 import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types'
-import { ChatMessage } from 'chatgpt'
 
 const octokit = new Octokit()
 export type PullRequests = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.list>
@@ -72,28 +71,6 @@ export class GitHub {
       body: comment,
     })
   }
-
-  // Function to fetch the latest reply from a thread
-  // async fetchLatestReplyFromThread(threadId: number) {
-  //   const response = await this.client.issues.listComments({
-  //     ...this.meta,
-  //     issue_number: threadId,
-  //   })
-
-  //   const threadComments = response.data
-
-  //   const latestReply = threadComments.reduce((latest, comment) => {
-  //     if (!latest.isEmpty || comment.updated_at > latest.updated_at) {
-  //       return comment
-  //     }
-  //     return latest
-  //   }, { isEmtpy: true })
-
-  //   if (latestReply.isEmpty) {
-  //     return null;
-  //   }
-  //   return latestReply
-  // }
 
   async getPrDetails(pullRequestNumber: number): Promise<PullRequestDetails | null> {
     const { data: pullRequestDetails } = await this.client.pulls.get({
