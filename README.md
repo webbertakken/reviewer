@@ -4,7 +4,7 @@
 <p>
 
 <p align="center">
-  <a href="https://discord.gg/Txt4992tan">
+  <a target="_blank" href="https://discord.gg/Txt4992tan">
     <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white">
   </a><br />
   <img src="https://img.shields.io/github/license/webbertakken/reviewer.svg" />
