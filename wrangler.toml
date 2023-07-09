@@ -4,3 +4,10 @@ compatibility_date = "2023-05-18"
 
 # Todo - remove this if possible
 node_compat = true
+
+# Placement mode for the application instances.
+# "default" = Requests are always processed close to your end-users.
+# "smart"   = Requests are processed in an optimal location, minimizing latency when making round-trips to a database or API.
+[placement]
+mode = "smart"
+
