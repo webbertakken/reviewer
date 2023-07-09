@@ -44,7 +44,7 @@ export const createController = (config: Config, { owner, repo }: RepositoryCont
     },
 
     async onEdited(event: EmitterWebhookEvent<'pull_request.edited'>) {
-      console.log('PullRequest.onEdited, only reviewing ')
+      console.log('PullRequest.onEdited, only reviewing title and description')
 
       const pr = createPullRequestActions(event, config, gh, gpt)
       await pr.reviewTitleAndDescription()

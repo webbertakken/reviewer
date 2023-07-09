@@ -24,10 +24,10 @@ yarn
 Create a `.env` file in the root of the project
 
 ```bash
-cp .env.dist .env
+cp .dev.vars.dist .dev.vars
 ```
 
-Now fill the `.env` file with the correct values.
+Now fill the `.dev.vars` file with the correct values.
 
 ## Develop
 
@@ -47,9 +47,27 @@ yarn test triggers/pullRequest
 yarn coverage
 ```
 
+## Updating secrets
+
+#### Local
+
+Update the `.dev.vars` file
+
+#### Production
+
+Run the following command, which will prompt you for a value.
+
+```bash
+yarn wrangler secret put NAME_OF_MY_SECRET
+```
+
+> **Note:** In case of the private key, be sure to preserve the newlines.
+
 ## Deploy
 
-TBD
+```bash
+yarn deploy
+```
 
 ## Upgrading tools
 

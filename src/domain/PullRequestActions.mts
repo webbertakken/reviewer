@@ -84,7 +84,6 @@ export const createPullRequestActions = (
       if (feedback.length === 0) {
         feedback.push(`<p>Everything looks good!</p>`)
       }
-
       const comment = dedent`
       ## :wave: Hi there!
 
@@ -96,7 +95,10 @@ export const createPullRequestActions = (
       </sup></sub>
       `
 
+      // Todo - debug access, in theory the code should work, but then stopped when upgrading to pkcs8 key
+      console.log('before 11')
       const prReviews = await gh.getCommentsByUser(number, config.gitHub.app.handle)
+      console.log('after 11')
       if (prReviews.length === 0) {
         console.log(`Submiting review for the first time at PR #${number}.`)
         await gh.placeComment(number, comment)
