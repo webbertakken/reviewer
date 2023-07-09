@@ -1,18 +1,18 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
-import { createPullRequestActions } from './createPullRequestActions.mjs'
+import { createPullRequestActions } from './PullRequestActions.mjs'
 import { hasCorrectConfig } from '../config/hasCorrectConfig.mjs'
 import type { Config } from '../config/config.mjs'
 import { GitHub } from '../services/GitHub.mjs'
 import { Gpt } from '../services/Gpt.mjs'
+import { RepositoryContext } from './RepositoryContext.mjs'
 
 export type Controller = ReturnType<typeof createController>
 
-export const createController = (config: Config) => {
+export const createController = (config: Config, { owner, repo }: RepositoryContext) => {
   if (!hasCorrectConfig(config)) throw new Error('Config is not set up correctly')
 
-  const { owner, repo, api } = config.gitHub
-
-  const gh = new GitHub(api, owner, repo)
+  // Services
+  const gh = new GitHub(config.gitHub.api, owner, repo)
   const gpt = new Gpt(config.gpt, config.app.mockGpt)
 
   return {

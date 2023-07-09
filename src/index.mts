@@ -4,6 +4,7 @@ import { Config, createConfig } from './config/config.mjs'
 import { Controller, createController } from './domain/Controller.mjs'
 import { App as GitHubApp } from 'octokit'
 import { EmitterWebhookEventName } from '@octokit/webhooks/dist-types/types.js'
+import { RepositoryContext } from './domain/RepositoryContext.mjs'
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -29,8 +30,14 @@ export default {
       )
     }
 
+    // Todo - get this from the request or execution context
+    const repository: RepositoryContext = {
+      owner: 'webbertakken',
+      repo: 'reviewer',
+    }
+
     // Controller
-    const controller: Controller = createController(config)
+    const controller: Controller = createController(config, repository)
     app.webhooks.on('pull_request.synchronize', controller.onSynchronise)
     app.webhooks.on('pull_request.opened', controller.onOpened)
     app.webhooks.on('pull_request.reopened', controller.onReopened)
