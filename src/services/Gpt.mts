@@ -1,18 +1,21 @@
 import { ChatGPTAPI, ChatMessage, SendMessageOptions } from 'chatgpt'
-import { config } from '../config/config.mjs'
+import { Config } from '../config/config.mjs'
 
 export class Gpt {
   private readonly client: ChatGPTAPI
+  private readonly isMock: boolean
   private options: SendMessageOptions = {}
 
-  constructor() {
-    const { apiKey } = config.openAi
+  constructor(config: Config['gpt'], isMock = false) {
+    const { apiKey } = config
+
+    this.isMock = isMock
 
     this.client = new ChatGPTAPI({ apiKey })
   }
 
   async ask(prompt: string): Promise<ChatMessage> {
-    if (process.env.MOCK_GPT === 'true') {
+    if (this.isMock) {
       console.log(`Using mock GPT ask:\n${prompt}\n`)
       return {
         text: 'This is a mock response',
@@ -21,9 +24,5 @@ export class Gpt {
       }
     }
     return this.client.sendMessage(prompt, this.options)
-  }
-
-  setOnProgress(onProgress?: (partialResponse: ChatMessage) => void) {
-    this.options.onProgress = onProgress
   }
 }

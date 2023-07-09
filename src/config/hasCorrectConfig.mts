@@ -1,7 +1,7 @@
-import { config } from './config.mjs'
+import type { Config } from './config.mjs'
 
-export const hasCorrectConfig = () => {
-  if (!config.openAi.apiKey?.startsWith('sk-')) {
+export const hasCorrectConfig = (config: Config) => {
+  if (!config.gpt.apiKey?.startsWith('sk-')) {
     console.log('OpenAI API key is NOT set.')
     return false
   }

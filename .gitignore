@@ -8,6 +8,7 @@ dist
 
 # Env
 *.local
+.dev.vars
 .env
 
 # Secrets

@@ -1,0 +1,10 @@
+name = "code-reviewer"
+main = "src/index.mts"
+compatibility_date = "2023-05-18"
+
+# Todo - remove this if possible
+node_compat = true
+
+[env.Dev]
+env_path = ".env"
+

@@ -8,8 +8,8 @@
     "node": ">=16"
   },
   "scripts": {
-    "dev": "yarn build && concurrently \"yarn build --watch\" \"nodemon -w dist -x node dist/index.mjs\"",
-    "dev:mock": "cross-env MOCK_GPT=true yarn dev",
+    "dev": "wrangler dev src/index.mts",
+    "deploy": "wrangler publish src/index.mts",
     "build": "tsc -p tsconfig.json",
     "preview": "vite preview",
     "lint": "eslint src triggers --ext js,ts,mts --max-warnings 0 ",
@@ -29,16 +29,17 @@
     "delay": 100
   },
   "dependencies": {
+    "@cloudflare/workers-types": "^4.20230628.0",
     "@octokit/auth-app": "^5.0.6",
     "@octokit/rest": "^19.0.13",
     "@octokit/types": "^10.0.0",
     "@types/dedent": "^0.7.0",
-    "@types/node": "^20.4.0",
     "chatgpt": "^5.2.5",
     "dotenv": "^16.3.1",
     "esm": "^3.2.25",
     "octokit": "^2.1.0",
-    "ts-dedent": "^2.2.0"
+    "ts-dedent": "^2.2.0",
+    "wrangler": "^3.1.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.2",
@@ -59,7 +60,8 @@
     "nodemon": "^2.0.22",
     "prettier": "^2.8.8",
     "typescript": "^5.1.5",
-    "vitest": "^0.33.0"
+    "vitest": "^0.33.0",
+    "vitest-environment-miniflare": "^2.14.0"
   },
   "packageManager": "yarn@3.6.0",
   "volta": {

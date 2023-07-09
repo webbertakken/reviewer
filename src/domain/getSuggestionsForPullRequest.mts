@@ -1,16 +1,14 @@
 import { GitHub } from '../services/GitHub.mjs'
 import { Gpt } from '../services/Gpt.mjs'
 
-export const getSuggestionsForPullRequest = async (prNumber: number): Promise<string> => {
-  console.log('Authenticating with Github...')
-  const github = GitHub.getInstance()
-
-  console.log('Authenticating with OpenAI...')
-  const gpt = new Gpt()
-
+export const getSuggestionsForPullRequest = async (
+  prNumber: number,
+  gh: GitHub,
+  gpt: Gpt,
+): Promise<string> => {
   // Gather information about the PR
   console.log(`Fetching changed files for #${prNumber}...`)
-  const changedFiles = await github.getPrChangedFiles(prNumber)
+  const changedFiles = await gh.getPrChangedFiles(prNumber)
   console.log(changedFiles.length + ' files were updated.')
 
   // Get input from GPT

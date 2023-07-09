@@ -1,33 +1,54 @@
-import 'dotenv/config'
-import { hasCorrectConfig } from './config/hasCorrectConfig.mjs'
-import { createServer } from 'node:http'
-import { config } from './config/config.mjs'
-import { App as GitHubApp, createNodeMiddleware } from 'octokit'
-import { PullRequestTriggers } from './domain/triggers/PullRequestTriggers.mjs'
+import type { Request } from '@cloudflare/workers-types'
+import { Env } from './config/env.mjs'
+import { Config, createConfig } from './config/config.mjs'
+import { Controller, createController } from './domain/Controller.mjs'
+import { App as GitHubApp } from 'octokit'
+import { EmitterWebhookEventName } from '@octokit/webhooks/dist-types/types.js'
 
-const app = async () => {
-  if (!hasCorrectConfig()) return
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const config: Config = createConfig(env)
 
-  const { appId, privateKey, webhooks, oauth } = config.gitHub.app
+    const { verbose } = config.app
+    const { appId, privateKey, webhooks, oauth } = config.gitHub.app
 
-  // Initialize the GitHub App
-  const app = new GitHubApp({ appId, privateKey, webhooks, oauth })
-  if (config.app.verbose) {
-    app.webhooks.onAny((event) => console.log(`${event.name} (${event.id})`, event.payload))
-    app.webhooks.onError(({ name, event, message }) => console.error(name, message, event.payload))
-  }
+    // Request
+    if (verbose) console.log('Request:', request.headers, request.body)
 
-  // Controller
-  app.webhooks.on('pull_request.synchronize', PullRequestTriggers.onSynchronise)
-  app.webhooks.on('pull_request.opened', PullRequestTriggers.onOpened)
-  app.webhooks.on('pull_request.reopened', PullRequestTriggers.onReopened)
-  app.webhooks.on('pull_request.edited', PullRequestTriggers.onEdited)
+    // Event
+    const event = request.headers.get('X-GitHub-Event') as EmitterWebhookEventName
+    if (!event) return new Response('Invalid event', { status: 400 })
+    if (verbose) console.log('Event:', event)
 
-  // Listen for events
-  createServer(createNodeMiddleware(app)).listen(config.app.port)
+    // GitHub App
+    const app = new GitHubApp({ appId, privateKey, webhooks, oauth })
+    if (verbose) {
+      app.webhooks.onAny((event) => console.log(`${event.name} (${event.id})`, event.payload))
+      app.webhooks.onError(({ name, event, message }) =>
+        console.error(name, message, event.payload),
+      )
+    }
+
+    // Controller
+    const controller: Controller = createController(config)
+    app.webhooks.on('pull_request.synchronize', controller.onSynchronise)
+    app.webhooks.on('pull_request.opened', controller.onOpened)
+    app.webhooks.on('pull_request.reopened', controller.onReopened)
+    app.webhooks.on('pull_request.edited', controller.onEdited)
+
+    // Receive and respond
+    const id = request.headers.get('CF-Ray') || 'local'
+    const payload = request.body?.toString() || ''
+    const signature = request.headers.get('X-Hub-Signature-256') || ''
+    console.log(id, event, payload, signature)
+
+    try {
+      // Todo - separate verify and receive. Call `receive` using ExecutionContext.waitUntil(promise)
+      await app.webhooks.verifyAndReceive({ id, name: event, payload, signature })
+      return new Response('{ ok: true }', { status: 200 })
+    } catch (error) {
+      console.error(error)
+      return new Response('An error occurred', { status: 500 })
+    }
+  },
 }
-
-app().catch((error) => {
-  console.error(error)
-  process.exit(1)
-})

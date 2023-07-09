@@ -1,15 +1,21 @@
 import { GitHub } from '../services/GitHub.mjs'
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
-import { config } from '../config/config.mjs'
 import { dedent } from 'ts-dedent'
 import { getSuggestionsForPullRequest } from './getSuggestionsForPullRequest.mjs'
+import { Config } from '../config/config.mjs'
+import { Gpt } from '../services/Gpt.mjs'
 
 type Suggestions = {
   description: string
   code: string[]
 }
 
-export const pullRequestActions = (event: EmitterWebhookEvent<'pull_request'>) => {
+export const createPullRequestActions = (
+  event: EmitterWebhookEvent<'pull_request'>,
+  config: Config,
+  gh: GitHub,
+  gpt: Gpt,
+) => {
   const { number } = event.payload.pull_request
 
   console.log(`PR #${number}`)
@@ -35,7 +41,7 @@ export const pullRequestActions = (event: EmitterWebhookEvent<'pull_request'>) =
 
     async reviewCodeChanges() {
       console.log('reviewCodeChanges')
-      const rawMessage = await getSuggestionsForPullRequest(number)
+      const rawMessage = await getSuggestionsForPullRequest(number, gh, gpt)
       suggestions.code.push(rawMessage)
     },
 
@@ -71,17 +77,16 @@ export const pullRequestActions = (event: EmitterWebhookEvent<'pull_request'>) =
       </sup></sub>
       `
 
-      const github = GitHub.getInstance()
-      const prReviews = await github.getCommentsByUser(number, config.gitHub.app.handle)
+      const prReviews = await gh.getCommentsByUser(number, config.gitHub.app.handle)
       if (prReviews.length === 0) {
         console.log(`Submiting review for the first time at PR #${number}.`)
-        await github.placeComment(number, comment)
+        await gh.placeComment(number, comment)
         return
       }
 
       // TODO - check if the bot review is the most recent
       console.log(`Updating review for PR #${number}.`)
-      await github.updateComment(prReviews[0].id, comment)
+      await gh.updateComment(prReviews[0].id, comment)
 
       console.log('Done!')
 

@@ -10,7 +10,7 @@
     "useDefineForClassFields": true,
     "lib": ["ES2015", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": ["@cloudflare/workers-types"],
     "typeRoots": ["node_modules/@types", "src/types"],
 
     /* Bundler mode */
