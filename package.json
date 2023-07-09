@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "wrangler dev src/index.mts",
-    "deploy": "wrangler publish src/index.mts",
+    "deploy": "wrangler deploy src/index.mts",
     "build": "tsc -p tsconfig.json",
     "preview": "vite preview",
     "lint": "eslint src triggers --ext js,ts,mts --max-warnings 0 ",
