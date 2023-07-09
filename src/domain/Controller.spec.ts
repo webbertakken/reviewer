@@ -1,6 +1,8 @@
 import { vi, it, describe, expect, beforeEach } from 'vitest'
-import { PullRequestTriggers } from './PullRequestTriggers.mjs'
+import { createController } from './Controller.mjs'
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
+import { createConfig } from '../config/config.mjs'
+import { Env } from '../config/env.mjs'
 
 // Methods must be hoisted to reference them in `vi.mock`
 const prActionMethods = vi.hoisted(() => ({
@@ -9,32 +11,33 @@ const prActionMethods = vi.hoisted(() => ({
   placeOrUpdateComment: vi.fn(),
 }))
 
-vi.mock('../pullRequestActions.mjs', () => ({
-  pullRequestActions: vi.fn().mockReturnValue({ ...prActionMethods }),
+vi.mock('./createPullRequestActions.mjs', () => ({
+  createPullRequestActions: vi.fn().mockReturnValue({ ...prActionMethods }),
 }))
 
-describe('PullRequestTriggers', () => {
-  vi.stubGlobal('console', { log: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() })
+describe('createController', () => {
+  const config = createConfig(process.env as never as Env)
+  const controller = createController(config)
 
+  vi.stubGlobal('console', { log: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() })
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   describe('onSynchronise', () => {
     const event = {} as EmitterWebhookEvent<'pull_request.synchronize'>
-
     it('calls reviewTitleAndDescription', async () => {
-      await PullRequestTriggers.onSynchronise(event)
+      await controller.onSynchronise(event)
       expect(prActionMethods.reviewTitleAndDescription).toHaveBeenCalledTimes(1)
     })
 
     it('calls reviewCodeChanges', async () => {
-      await PullRequestTriggers.onSynchronise(event)
+      await controller.onSynchronise(event)
       expect(prActionMethods.reviewCodeChanges).toHaveBeenCalledTimes(1)
     })
 
     it('calls placeOrUpdateComment', async () => {
-      await PullRequestTriggers.onSynchronise(event)
+      await controller.onSynchronise(event)
       expect(prActionMethods.placeOrUpdateComment).toHaveBeenCalledTimes(1)
     })
   })
@@ -43,17 +46,17 @@ describe('PullRequestTriggers', () => {
     const event = {} as EmitterWebhookEvent<'pull_request.opened'>
 
     it('calls reviewTitleAndDescription', async () => {
-      await PullRequestTriggers.onOpened(event)
+      await controller.onOpened(event)
       expect(prActionMethods.reviewTitleAndDescription).toHaveBeenCalledTimes(1)
     })
 
     it('calls reviewCodeChanges', async () => {
-      await PullRequestTriggers.onOpened(event)
+      await controller.onOpened(event)
       expect(prActionMethods.reviewCodeChanges).toHaveBeenCalledTimes(1)
     })
 
     it('calls placeOrUpdateComment', async () => {
-      await PullRequestTriggers.onOpened(event)
+      await controller.onOpened(event)
       expect(prActionMethods.placeOrUpdateComment).toHaveBeenCalledTimes(1)
     })
   })
@@ -62,17 +65,17 @@ describe('PullRequestTriggers', () => {
     const event = {} as EmitterWebhookEvent<'pull_request.reopened'>
 
     it('calls reviewTitleAndDescription', async () => {
-      await PullRequestTriggers.onReopened(event)
+      await controller.onReopened(event)
       expect(prActionMethods.reviewTitleAndDescription).toHaveBeenCalledTimes(1)
     })
 
     it('calls reviewCodeChanges', async () => {
-      await PullRequestTriggers.onReopened(event)
+      await controller.onReopened(event)
       expect(prActionMethods.reviewCodeChanges).toHaveBeenCalledTimes(1)
     })
 
     it('calls placeOrUpdateComment', async () => {
-      await PullRequestTriggers.onReopened(event)
+      await controller.onReopened(event)
       expect(prActionMethods.placeOrUpdateComment).toHaveBeenCalledTimes(1)
     })
   })
@@ -81,17 +84,17 @@ describe('PullRequestTriggers', () => {
     const event = {} as EmitterWebhookEvent<'pull_request.edited'>
 
     it('calls reviewTitleAndDescription', async () => {
-      await PullRequestTriggers.onEdited(event)
+      await controller.onEdited(event)
       expect(prActionMethods.reviewTitleAndDescription).toHaveBeenCalledTimes(1)
     })
 
     it('calls placeOrUpdateComment', async () => {
-      await PullRequestTriggers.onEdited(event)
+      await controller.onEdited(event)
       expect(prActionMethods.placeOrUpdateComment).toHaveBeenCalledTimes(1)
     })
 
     it('does not call reviewCodeChanges', async () => {
-      await PullRequestTriggers.onEdited(event)
+      await controller.onEdited(event)
       expect(prActionMethods.reviewCodeChanges).not.toHaveBeenCalled()
     })
   })

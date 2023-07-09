@@ -1,9 +1,11 @@
-import { getGithubPrivateKey } from './getGithubPrivateKey.mjs'
+import type { Env } from './env.mjs'
 
-export const config = {
+export type Config = ReturnType<typeof createConfig>
+export const createConfig = (env: Env) => ({
   app: {
     port: 3000,
-    verbose: process.env.APP_VERBOSE === 'true',
+    verbose: env.APP_VERBOSE === 'true',
+    mockGpt: env.MOCK_GPT === 'true',
   },
   gitHub: {
     owner: 'webbertakken',
@@ -12,29 +14,29 @@ export const config = {
       name: 'PR Code Reviewer',
       handle: 'pr-code-reviewer[bot]',
       appId: '353840',
-      privateKey: process.env.GH_APP_CLIENT_SECRET || '',
+      privateKey: env.GH_APP_CLIENT_SECRET || '',
       webhooks: {
-        secret: process.env.GH_APP_SECRET_TOKEN || '',
+        secret: env.GH_APP_SECRET_TOKEN || '',
       },
       oauth: {
         clientId: 'Iv1.59c51d0842ad2f54',
-        clientSecret: process.env.GH_APP_CLIENT_SECRET || '',
+        clientSecret: env.GH_APP_CLIENT_SECRET || '',
       },
     },
     api: {
       auth: {
         appId: 353840,
         installationId: 39090441,
-        privateKey: getGithubPrivateKey(),
+        privateKey: env.GH_APP_PRIVATE_KEY || '',
       },
     },
     actions: {},
   },
-  openAi: {
-    apiKey: process.env.OPENAI_API_KEY || '',
+  gpt: {
+    apiKey: env.OPENAI_API_KEY || '',
   },
   model: {
     name: 'GPT',
     version: '3.5-turbo',
   },
-}
+})
