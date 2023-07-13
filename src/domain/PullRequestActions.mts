@@ -57,7 +57,7 @@ export const createPullRequestActions = (
       console.log('Asking GPT to help review the PR...')
       const prompt =
         // `Please code review the following diff. Give a maximum of 3 improvements. Ignore any links. Here is the diff: `.concat(
-        `Please make suggestions on idiomatic improvements and find better code: `.concat(
+        `Please do a code review for me without using the internet. Give a maximum of 3 improvements. Focus on idiomatic code and possible bugs. The code difference to review is as follows: `.concat(
           changedFiles.map((file) => file.patch).join('\n\n'),
         )
 
