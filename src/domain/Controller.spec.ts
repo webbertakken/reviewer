@@ -11,7 +11,7 @@ const prActionMethods = vi.hoisted(() => ({
   placeOrUpdateComment: vi.fn(),
 }))
 
-vi.mock('./createPullRequestActions.mjs', () => ({
+vi.mock('./PullRequestActions.mjs', () => ({
   createPullRequestActions: vi.fn().mockReturnValue({ ...prActionMethods }),
 }))
 
