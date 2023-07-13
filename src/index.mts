@@ -1,12 +1,15 @@
-import type { Request } from '@cloudflare/workers-types'
+import type { Request, ExecutionContext } from '@cloudflare/workers-types'
 import { Env } from './config/env.mjs'
 import { Config, createConfig } from './config/config.mjs'
 import { Controller, createController } from './domain/Controller.mjs'
 import { App as GitHubApp } from 'octokit'
 import { WebhookEventName } from '@octokit/webhooks-types'
+import { Octokit } from '@octokit/rest'
+import { createAppAuth } from '@octokit/auth-app'
+import { WebhookEvent } from './domain/WebhookEvent.mjs'
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // Config
     const config: Config = createConfig(env)
     const { verbose } = config.app
@@ -19,21 +22,18 @@ export default {
     const requestBody = await request.text()
     if (!requestBody) throw new Error('Request body is empty')
     const requestPayload = JSON.parse(requestBody)
-    const requestHeaders = Object.fromEntries(request.headers)
-    if (verbose) console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
+    // const requestHeaders = Object.fromEntries(request.headers)
+    // if (verbose) console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
 
     // Event
-    const event = request.headers.get('X-GitHub-Event') as WebhookEventName
-    if (!event) return new Response('Invalid event', { status: 400 })
-    if (verbose) console.log('Event:', event)
+    const id = request.headers.get('CF-Ray') || 'local'
+    const signature = request.headers.get('X-Hub-Signature-256') || ''
+    const eventName = request.headers.get('X-GitHub-Event') as WebhookEventName
+    if (!eventName || !id || !signature) return new Response('Invalid event', { status: 400 })
+    const event = WebhookEvent.create(id, eventName, requestPayload)
+    if (verbose) console.log(`Event: ${event.name} (${event.id})`)
 
-    // Installation ID
-    const installationIdString = request.headers.get('X-GitHub-Hook-Installation-Target-Id')
-    const installationId = installationIdString !== null ? parseInt(installationIdString) : null
-    if (!installationId) return new Response('Invalid installation', { status: 400 })
-    if (verbose) console.log('Installation:', installationId)
-
-    // GitHub App
+    // GitHub App client
     const { appId, privateKey, webhooks, oauth } = config.gitHub.app
     const app = new GitHubApp({ appId, privateKey, webhooks, oauth })
     if (verbose) {
@@ -41,7 +41,22 @@ export default {
       app.webhooks.onError(({ name, event, message }) =>
         console.error(name, message, event.payload),
       )
+      console.log('App initialised')
     }
+
+    // GitHub API client
+    const { auth } = config.gitHub.api
+    const topLevelClient = new Octokit({ authStrategy: createAppAuth, auth })
+    if (verbose) console.log('Top level API client initialised')
+
+    // Installation ID
+    // @ts-expect-error - find correct types
+    const { owner, repo, repository } = WebhookEvent.getRepository(event)
+    console.log(repository, owner, repo)
+    const { data: installation } = await topLevelClient.apps.getRepoInstallation({ owner, repo })
+    const installationId = installation?.id || null
+    if (!installationId) return new Response(`No installation in ${repository}`, { status: 400 })
+    if (verbose) console.log('Installation ID:', installationId)
 
     // Controller
     const controller: Controller = createController(config, installationId)
@@ -52,23 +67,28 @@ export default {
 
     try {
       // Verify request
-      const id = request.headers.get('CF-Ray') || 'local'
-      const signature = request.headers.get('X-Hub-Signature-256') || ''
-      if (verbose) console.log(id, event, signature)
       await app.webhooks.verify(requestBody, signature)
       if (verbose) console.log('Verified')
 
       // Handle request
-      // Todo first send the response, then `receive` using ExecutionContext.waitUntil(promise)
-      // Todo - find correct types
-      // @ts-expect-error - find correct types
-      await app.webhooks.receive({ id, name: event, payload: requestPayload })
-      if (verbose) console.log('Received')
+      ctx.waitUntil(
+        app.webhooks
+          // @ts-expect-error - find correct types
+          .receive(event)
+          .then(() => {
+            if (verbose) console.log('Event processed. 🎉')
+          })
+          .catch((error) => {
+            console.error('Error while processing event.', error)
+          }),
+      )
 
       // Respond
+      if (verbose) console.log('Responding - 200')
       return new Response('{ ok: true }', { status: 200 })
     } catch (error) {
       console.error(error)
+      if (verbose) console.log('Responding - 500')
       return new Response(`An error occurred ${error}`, { status: 500 })
     }
   },

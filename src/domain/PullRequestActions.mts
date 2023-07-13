@@ -3,6 +3,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
 import { dedent } from 'ts-dedent'
 import { Config } from '../config/config.mjs'
 import { Gpt } from '../services/Gpt.mjs'
+import { WebhookEvent } from './WebhookEvent.mjs'
 
 type Suggestions = {
   description: string
@@ -16,13 +17,7 @@ export const createPullRequestActions = (
 ) => {
   const { verbose } = config.app
   const { number } = event.payload.pull_request
-
-  const owner = event.payload.repository.owner.login
-  if (!owner) throw Error('No owner found in event')
-
-  const repo = event.payload.repository.name
-  const repository = `${owner}/${repo}`
-  if (!repo) throw Error('No repo found in event')
+  const { owner, repo, repository } = WebhookEvent.getRepository(event)
 
   const gh: GitHub = new GitHub(config.gitHub.api, installationId, owner, repo)
   const gpt: Gpt = new Gpt(config.gpt, config.app.mockGpt)
@@ -61,9 +56,13 @@ export const createPullRequestActions = (
       // Get input from GPT
       console.log('Asking GPT to help review the PR...')
       const prompt =
-        `please make suggestions on idiomatic improvements and find better code: `.concat(
+        // `Please code review the following diff. Give a maximum of 3 improvements. Ignore any links. Here is the diff: `.concat(
+        `Please do a code review for me without using the internet. Give a maximum of 3 improvements. Focus on idiomatic code and possible bugs. The code difference to review is as follows: `.concat(
           changedFiles.map((file) => file.patch).join('\n\n'),
         )
+
+      if (verbose) console.log(`-------------\n\nGPT prompt:\n${prompt}\n\n-------------`)
+
       const chatMessage = await gpt.ask(prompt)
       const gptAnswer = chatMessage.text
 

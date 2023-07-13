@@ -11,7 +11,8 @@ export class Gpt {
 
     this.isMock = isMock
 
-    this.client = new ChatGPTAPI({ apiKey })
+    // Workaround for fetch in worker env: https://github.com/transitive-bullshit/chatgpt-api/issues/592#issuecomment-1614001104
+    this.client = new ChatGPTAPI({ apiKey, fetch: self.fetch.bind(self) })
   }
 
   async ask(prompt: string): Promise<ChatMessage> {
