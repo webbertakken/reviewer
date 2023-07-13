@@ -3,7 +3,6 @@ import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
 import { dedent } from 'ts-dedent'
 import { Config } from '../config/config.mjs'
 import { Gpt } from '../services/Gpt.mjs'
-import { RepositoryContext } from './RepositoryContext.mjs'
 
 type Suggestions = {
   description: string
@@ -12,15 +11,25 @@ type Suggestions = {
 
 export const createPullRequestActions = (
   event: EmitterWebhookEvent<'pull_request'>,
+  installationId: number,
   config: Config,
-  gh: GitHub,
-  gpt: Gpt,
 ) => {
   const { verbose } = config.app
   const { number } = event.payload.pull_request
-  const repository = RepositoryContext.fromPayloadRepo(event.payload.repository)
 
-  console.log(`PR #${number}`)
+  const owner = event.payload.repository.owner.login
+  if (!owner) throw Error('No owner found in event')
+
+  const repo = event.payload.repository.name
+  const repository = `${owner}/${repo}`
+  if (!repo) throw Error('No repo found in event')
+
+  const gh: GitHub = new GitHub(config.gitHub.api, installationId, owner, repo)
+  const gpt: Gpt = new Gpt(config.gpt, config.app.mockGpt)
+
+  console.log(
+    `Responding to PR: https://github.com/${repository}/pull/${number} (${installationId})`,
+  )
 
   const suggestions: Suggestions = {
     description: '',
@@ -84,7 +93,6 @@ export const createPullRequestActions = (
       if (feedback.length === 0) {
         feedback.push(`<p>Everything looks good!</p>`)
       }
-
       const comment = dedent`
       ## :wave: Hi there!
 
@@ -96,7 +104,10 @@ export const createPullRequestActions = (
       </sup></sub>
       `
 
+      // Todo - debug access, in theory the code should work, but then stopped when upgrading to pkcs8 key
+      console.log('before 11')
       const prReviews = await gh.getCommentsByUser(number, config.gitHub.app.handle)
+      console.log('after 11')
       if (prReviews.length === 0) {
         console.log(`Submiting review for the first time at PR #${number}.`)
         await gh.placeComment(number, comment)

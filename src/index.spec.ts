@@ -6,7 +6,9 @@ describe('Worker', () => {
   let worker: UnstableDevWorker
 
   beforeAll(async () => {
-    worker = await unstable_dev('src/index.mts', {}, { disableExperimentalWarning: true })
+    worker = await unstable_dev('src/index.mts', {
+      experimental: { disableExperimentalWarning: true },
+    })
   })
 
   afterAll(async () => {
@@ -19,6 +21,6 @@ describe('Worker', () => {
     expect(resp.status).toBe(200)
 
     const text = await resp.text()
-    expect(text).toBe('request method: GET')
+    expect(text).toBe('OK')
   })
 })

@@ -13,6 +13,7 @@ dist
 
 # Secrets
 *.pem
+*.der
 *.key
 
 # Tests

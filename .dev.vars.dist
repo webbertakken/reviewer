@@ -3,4 +3,6 @@ APP_VERBOSE=false
 OPENAI_API_KEY=
 GH_APP_CLIENT_SECRET=
 GH_APP_SECRET_TOKEN=
+# Convert the private key (that you get from the GitHub App settings) to PKCS8 format
+# openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in pr-code-reviewer.private-key.pem -out private-key-pkcs8.key
 GH_APP_PRIVATE_KEY=
