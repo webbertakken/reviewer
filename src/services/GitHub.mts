@@ -84,22 +84,24 @@ export class GitHub {
     return pullRequestDetails
   }
 
-  async getPrChangedFiles(pullRequestNumber: number): Promise<PullRequestFiles> {
+  async getPrChangedFiles(pullRequestNumber: number): Promise<PullRequestFilesRaw[number][]> {
     const { data: files } = await this.client.pulls.listFiles({
       ...this.meta,
       pull_number: pullRequestNumber,
     })
 
-    return Promise.all(
-      files.map(async (file) => ({
-        ...file,
-        contents: await this.fetchFileContents(file.raw_url),
-      })),
-    )
+    // return Promise.all(
+    //   files.map(async (file) => ({
+    //     ...file,
+    //     contents: await this.fetchFileContents(file.raw_url),
+    //   })),
+    // )
+
+    return files
   }
 
-  private async fetchFileContents(httpUrl: string): Promise<string> {
-    const { data: fileContents } = await this.client.request(httpUrl)
-    return fileContents
-  }
+  // private async fetchFileContents(httpUrl: string): Promise<string> {
+  //   const { data: fileContents } = await this.client.request(httpUrl)
+  //   return fileContents
+  // }
 }

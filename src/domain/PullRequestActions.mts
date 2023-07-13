@@ -56,7 +56,7 @@ export const createPullRequestActions = (
       // Get input from GPT
       console.log('Asking GPT to help review the PR...')
       const prompt =
-        `please make suggestions on idiomatic improvements and find better code: `.concat(
+        `What are the top 3 improvements to make with regards to code quality, bugs and idiomatic code, considering the following diff: `.concat(
           changedFiles.map((file) => file.patch).join('\n\n'),
         )
       const chatMessage = await gpt.ask(prompt)
