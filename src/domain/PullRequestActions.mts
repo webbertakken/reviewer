@@ -59,6 +59,9 @@ export const createPullRequestActions = (
         `What are the top 3 improvements to make (if any) with regards to code quality, bugs and idiomatic code, in the following code diff: `.concat(
           changedFiles.map((file) => file.patch).join('\n\n'),
         )
+
+      if (verbose) console.log(`-------------\n\nGPT prompt:\n${prompt}\n\n-------------`)
+
       const chatMessage = await gpt.ask(prompt)
       const gptAnswer = chatMessage.text
 
