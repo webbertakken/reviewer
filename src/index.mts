@@ -22,8 +22,8 @@ export default {
     const requestBody = await request.text()
     if (!requestBody) throw new Error('Request body is empty')
     const requestPayload = JSON.parse(requestBody)
-    const requestHeaders = Object.fromEntries(request.headers)
-    if (verbose) console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
+    // const requestHeaders = Object.fromEntries(request.headers)
+    // if (verbose) console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
 
     // Event
     const id = request.headers.get('CF-Ray') || 'local'
