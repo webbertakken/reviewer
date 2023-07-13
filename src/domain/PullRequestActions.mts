@@ -56,7 +56,7 @@ export const createPullRequestActions = (
       // Get input from GPT
       console.log('Asking GPT to help review the PR...')
       const prompt =
-        `What are the top 3 improvements to make (if any) with regards to code quality, bugs and idiomatic code, in the following code diff: `.concat(
+        `Please code review the following diff. Give a maximum of 3 improvements. Ignore any links. Here is the diff: `.concat(
           changedFiles.map((file) => file.patch).join('\n\n'),
         )
 
