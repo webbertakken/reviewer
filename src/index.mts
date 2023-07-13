@@ -84,8 +84,8 @@ export default {
       )
 
       // Respond
-      if (verbose) console.log('Responding - 204')
-      return new Response('{ ok: true }', { status: 204 })
+      if (verbose) console.log('Responding - 200')
+      return new Response('{ ok: true }', { status: 200 })
     } catch (error) {
       console.error(error)
       if (verbose) console.log('Responding - 500')
