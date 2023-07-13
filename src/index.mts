@@ -11,9 +11,13 @@ export default {
     const config: Config = createConfig(env)
     const { verbose } = config.app
 
+    // Show that service is healthy. Don't serve anything other than post
+    if (request.method === 'GET') return new Response('OK', { status: 200 })
+    if (request.method !== 'POST') return new Response('Invalid method', { status: 400 })
+
     // Get request info
     const requestBody = await request.text()
-    // Todo - find proper type for requestPayload
+    if (!requestBody) throw new Error('Request body is empty')
     const requestPayload = JSON.parse(requestBody)
     const requestHeaders = Object.fromEntries(request.headers)
     if (verbose) console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
@@ -65,7 +69,7 @@ export default {
       return new Response('{ ok: true }', { status: 200 })
     } catch (error) {
       console.error(error)
-      return new Response('An error occurred', { status: 500 })
+      return new Response(`An error occurred ${error}`, { status: 500 })
     }
   },
 }

@@ -19,6 +19,6 @@ describe('Worker', () => {
     expect(resp.status).toBe(200)
 
     const text = await resp.text()
-    expect(text).toBe('request method: GET')
+    expect(text).toBe('OK')
   })
 })
