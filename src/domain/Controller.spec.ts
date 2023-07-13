@@ -14,6 +14,8 @@ const prActionMethods = vi.hoisted(() => ({
 vi.mock('./PullRequestActions.mjs', () => ({
   createPullRequestActions: vi.fn().mockReturnValue({ ...prActionMethods }),
 }))
+const hasCorrectConfig = vi.hoisted(() => vi.fn().mockReturnValue(true))
+vi.mock('../config/hasCorrectConfig.mjs', () => ({ hasCorrectConfig }))
 
 describe('createController', () => {
   const config = createConfig(process.env as never as Env)
@@ -22,6 +24,19 @@ describe('createController', () => {
   vi.stubGlobal('console', { log: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() })
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  describe('constructor', () => {
+    it('does not throw if config is correct', () => {
+      expect(() => createController(config, 1337)).not.toThrow()
+      expect(hasCorrectConfig).toHaveBeenCalledTimes(1)
+    })
+
+    it('throws if config is not correct', () => {
+      hasCorrectConfig.mockReturnValueOnce(false)
+      expect(() => createController(config, 1337)).toThrow('Config is not set up correctly')
+      expect(hasCorrectConfig).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('onSynchronise', () => {
