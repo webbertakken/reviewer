@@ -6,7 +6,9 @@ describe('Worker', () => {
   let worker: UnstableDevWorker
 
   beforeAll(async () => {
-    worker = await unstable_dev('src/index.mts', {}, { disableExperimentalWarning: true })
+    worker = await unstable_dev('src/index.mts', {
+      experimental: { disableExperimentalWarning: true },
+    })
   })
 
   afterAll(async () => {
