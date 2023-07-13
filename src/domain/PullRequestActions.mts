@@ -3,6 +3,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
 import { dedent } from 'ts-dedent'
 import { Config } from '../config/config.mjs'
 import { Gpt } from '../services/Gpt.mjs'
+import { WebhookEvent } from './WebhookEvent.mjs'
 
 type Suggestions = {
   description: string
@@ -16,13 +17,7 @@ export const createPullRequestActions = (
 ) => {
   const { verbose } = config.app
   const { number } = event.payload.pull_request
-
-  const owner = event.payload.repository.owner.login
-  if (!owner) throw Error('No owner found in event')
-
-  const repo = event.payload.repository.name
-  const repository = `${owner}/${repo}`
-  if (!repo) throw Error('No repo found in event')
+  const { owner, repo, repository } = WebhookEvent.getRepository(event)
 
   const gh: GitHub = new GitHub(config.gitHub.api, installationId, owner, repo)
   const gpt: Gpt = new Gpt(config.gpt, config.app.mockGpt)
