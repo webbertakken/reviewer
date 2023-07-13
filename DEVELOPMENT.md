@@ -35,11 +35,7 @@ Now fill the `.dev.vars` file with the correct values.
 yarn dev
 ```
 
-or trigger specific events using the triggers
-
-```bash
-yarn test triggers/pullRequest
-```
+Then fire specific http requests from the `triggers` folder.
 
 ## Test
 
