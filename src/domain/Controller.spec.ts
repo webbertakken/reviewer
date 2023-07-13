@@ -17,7 +17,7 @@ vi.mock('./createPullRequestActions.mjs', () => ({
 
 describe('createController', () => {
   const config = createConfig(process.env as never as Env)
-  const controller = createController(config)
+  const controller = createController(config, 1337)
 
   vi.stubGlobal('console', { log: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() })
   beforeEach(() => {

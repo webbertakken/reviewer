@@ -18,12 +18,17 @@ export class GitHub {
   private readonly client: Octokit
   private readonly meta: { owner: string; repo: string }
 
-  constructor(config: Config['gitHub']['api'], owner: string, repo: string) {
+  constructor(
+    config: Config['gitHub']['api'],
+    installationId: number,
+    owner: string,
+    repo: string,
+  ) {
     const { auth } = config
 
     this.meta = { owner, repo }
 
-    this.client = new Octokit({ authStrategy: createAppAuth, auth })
+    this.client = new Octokit({ authStrategy: createAppAuth, auth: { ...auth, installationId } })
   }
 
   async getMostRecentPr(): Promise<PullRequest | null> {

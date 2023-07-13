@@ -3,29 +3,34 @@ import { Env } from './config/env.mjs'
 import { Config, createConfig } from './config/config.mjs'
 import { Controller, createController } from './domain/Controller.mjs'
 import { App as GitHubApp } from 'octokit'
-import { RepositoryContext } from './domain/RepositoryContext.mjs'
 import { WebhookEventName } from '@octokit/webhooks-types'
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    // Config
     const config: Config = createConfig(env)
     const { verbose } = config.app
-    const { appId, privateKey, webhooks, oauth } = config.gitHub.app
 
     // Get request info
     const requestBody = await request.text()
     // Todo - find proper type for requestPayload
     const requestPayload = JSON.parse(requestBody)
-    // const { name, payload, id } = requestPayload
-    // const requestHeaders = Object.fromEntries(request.headers)
-    // if (verbose) console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
+    const requestHeaders = Object.fromEntries(request.headers)
+    if (verbose) console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
 
     // Event
     const event = request.headers.get('X-GitHub-Event') as WebhookEventName
     if (!event) return new Response('Invalid event', { status: 400 })
     if (verbose) console.log('Event:', event)
 
+    // Installation ID
+    const installationIdString = request.headers.get('X-GitHub-Hook-Installation-Target-Id')
+    const installationId = installationIdString !== null ? parseInt(installationIdString) : null
+    if (!installationId) return new Response('Invalid installation', { status: 400 })
+    if (verbose) console.log('Installation:', installationId)
+
     // GitHub App
+    const { appId, privateKey, webhooks, oauth } = config.gitHub.app
     const app = new GitHubApp({ appId, privateKey, webhooks, oauth })
     if (verbose) {
       app.webhooks.onAny((event) => console.log(`${event.name} (${event.id})`, event.payload))
@@ -34,14 +39,8 @@ export default {
       )
     }
 
-    // Todo - get this from the request or execution context
-    const repository: RepositoryContext = {
-      owner: 'webbertakken',
-      repo: 'reviewer',
-    }
-
     // Controller
-    const controller: Controller = createController(config, repository)
+    const controller: Controller = createController(config, installationId)
     app.webhooks.on('pull_request.synchronize', controller.onSynchronise)
     app.webhooks.on('pull_request.opened', controller.onOpened)
     app.webhooks.on('pull_request.reopened', controller.onReopened)

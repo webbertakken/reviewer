@@ -26,7 +26,6 @@ export const createConfig = (env: Env) => ({
     api: {
       auth: {
         appId: 353840,
-        installationId: 39090441,
         privateKey: env.GH_APP_PRIVATE_KEY || '',
       },
     },
