@@ -28,6 +28,9 @@ export const createConfig = (env: Env) => ({
         appId: 353840,
         privateKey: env.GH_APP_PRIVATE_KEY || '',
       },
+      webhooks: {
+        secret: env.GH_APP_SECRET_TOKEN || '',
+      },
     },
     actions: {},
   },

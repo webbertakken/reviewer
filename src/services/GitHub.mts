@@ -16,7 +16,8 @@ export type PullRequestFiles = Array<{ contents: string } & PullRequestFilesRaw[
 
 export class GitHub {
   private readonly client: Octokit
-  private readonly meta: { owner: string; repo: string }
+  private readonly repository: { owner: string; repo: string }
+  private readonly webhookSecret: string
 
   constructor(
     config: Config['gitHub']['api'],
@@ -26,14 +27,40 @@ export class GitHub {
   ) {
     const { auth } = config
 
-    this.meta = { owner, repo }
+    this.webhookSecret = config.webhooks.secret
+    this.repository = { owner, repo }
 
     this.client = new Octokit({ authStrategy: createAppAuth, auth: { ...auth, installationId } })
   }
 
+  async checkIfWebhookExists() {
+    const { data: hooks } = await this.client.repos.listWebhooks({
+      ...this.repository,
+    })
+
+    return hooks.some((hook) => hook.config.url === 'https://hooks.code-reviewer.net/')
+  }
+
+  async createWebhook() {
+    if (!this.webhookSecret) throw new Error('Webhook secret not set')
+
+    await this.client.repos.createWebhook({
+      ...this.repository,
+      name: 'Code Reviewer Hook',
+      active: true,
+      events: ['push', 'pull_request'],
+      config: {
+        secret: this.webhookSecret,
+        url: 'https://hooks.code-reviewer.net/',
+        content_type: 'json',
+        insecure_ssl: '0',
+      },
+    })
+  }
+
   async getMostRecentPr(): Promise<PullRequest | null> {
     const { data: pullRequests } = await this.client.pulls.list({
-      ...this.meta,
+      ...this.repository,
       sort: 'created',
       direction: 'desc',
       per_page: 1,
@@ -47,7 +74,7 @@ export class GitHub {
     userName: string,
   ): Promise<PullRequestComments> {
     const response = await this.client.issues.listComments({
-      ...this.meta,
+      ...this.repository,
       issue_number: pullRequestNumber,
     })
 
@@ -61,7 +88,7 @@ export class GitHub {
   // Function to place a comment by the bot-reviewer
   async placeComment(pullRequestNumber: number, comment: string) {
     await this.client.issues.createComment({
-      ...this.meta,
+      ...this.repository,
       issue_number: pullRequestNumber,
       body: comment,
     })
@@ -69,7 +96,7 @@ export class GitHub {
 
   async updateComment(commentId: number, comment: string) {
     await this.client.issues.updateComment({
-      ...this.meta,
+      ...this.repository,
       comment_id: commentId,
       body: comment,
     })
@@ -77,7 +104,7 @@ export class GitHub {
 
   async getPrDetails(pullRequestNumber: number): Promise<PullRequestDetails | null> {
     const { data: pullRequestDetails } = await this.client.pulls.get({
-      ...this.meta,
+      ...this.repository,
       pull_number: pullRequestNumber,
     })
 
@@ -86,7 +113,7 @@ export class GitHub {
 
   async getPrChangedFiles(pullRequestNumber: number): Promise<PullRequestFilesRaw[number][]> {
     const { data: files } = await this.client.pulls.listFiles({
-      ...this.meta,
+      ...this.repository,
       pull_number: pullRequestNumber,
     })
 
