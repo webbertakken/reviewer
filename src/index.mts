@@ -12,7 +12,7 @@ export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // Config
     const config: Config = createConfig(env)
-    const { verbose } = config.app
+    const { verbose, veryVerbose } = config.app
 
     // Show that service is healthy. Don't serve anything other than post
     if (request.method === 'GET') return new Response('OK', { status: 200 })
@@ -22,8 +22,12 @@ export default {
     const requestBody = await request.text()
     if (!requestBody) throw new Error('Request body is empty')
     const requestPayload = JSON.parse(requestBody)
-    // const requestHeaders = Object.fromEntries(request.headers)
-    // if (verbose) console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
+
+    // Log request (veryVerbose only)
+    if (veryVerbose) {
+      const requestHeaders = Object.fromEntries(request.headers)
+      console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
+    }
 
     // Event
     const id = request.headers.get('CF-Ray') || 'local'
@@ -32,6 +36,16 @@ export default {
     if (!eventName || !id || !signature) return new Response('Invalid event', { status: 400 })
     const event = WebhookEvent.create(id, eventName, requestPayload)
     if (verbose) console.log(`Event: ${event.name} (${event.id})`)
+
+    // Log errors for unhandled events
+    const handledEvents = ['ping', 'pull_request']
+    if (!handledEvents.includes(event.name)) {
+      console.error('Unhandled event', event.name)
+      return new Response('OK', { status: 200 })
+    }
+
+    // Prefilter events
+    if (event.name === 'ping') return new Response('OK', { status: 200 })
 
     // GitHub App client
     const { appId, privateKey, webhooks, oauth } = config.gitHub.app

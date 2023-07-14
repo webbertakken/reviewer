@@ -5,6 +5,7 @@ export const createConfig = (env: Env) => ({
   app: {
     port: 3000,
     verbose: env.APP_VERBOSE === 'true',
+    veryVerbose: false,
     mockGpt: env.MOCK_GPT === 'true',
   },
   gitHub: {
@@ -33,9 +34,7 @@ export const createConfig = (env: Env) => ({
   },
   gpt: {
     apiKey: env.OPENAI_API_KEY || '',
-  },
-  model: {
-    name: 'GPT',
-    version: '3.5-turbo',
+    model: 'gpt-3.5-turbo', // 'gpt-4', // access not yet granted
+    debug: env.GPT_DEBUG === 'true',
   },
 })
