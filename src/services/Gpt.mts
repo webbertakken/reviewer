@@ -7,12 +7,17 @@ export class Gpt {
   private options: SendMessageOptions = {}
 
   constructor(config: Config['gpt'], isMock = false) {
-    const { apiKey } = config
+    const { apiKey, model, debug } = config
 
     this.isMock = isMock
 
-    // Workaround for fetch in worker env: https://github.com/transitive-bullshit/chatgpt-api/issues/592#issuecomment-1614001104
-    this.client = new ChatGPTAPI({ apiKey, fetch: self.fetch.bind(self) })
+    this.client = new ChatGPTAPI({
+      apiKey,
+      debug,
+      completionParams: { model },
+      // Workaround for fetch in worker env: https://github.com/transitive-bullshit/chatgpt-api/issues/592#issuecomment-1614001104
+      fetch: self.fetch.bind(self),
+    })
   }
 
   async ask(prompt: string): Promise<ChatMessage> {

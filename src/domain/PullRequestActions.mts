@@ -98,7 +98,7 @@ export const createPullRequestActions = (
       ${feedback.join('\n\n')}
 
       <sub><sup>
-      Automatically generated with the help of ${config.model.name} v${config.model.version}.
+      Automatically generated with the help of ${config.gpt.model}.
       Feedback? Please don't hesitate to drop me an email at [webber@takken.io](mailto:webber@takken.io).
       </sup></sub>
       `
