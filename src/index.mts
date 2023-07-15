@@ -42,7 +42,7 @@ export default {
 
       // Skip unused events
       const unusedEvents = ['check_suite', 'push']
-      if (!unusedEvents.includes(event.name)) return new Response('OK', { status: 200 })
+      if (unusedEvents.includes(event.name)) return new Response('OK', { status: 200 })
 
       // Log errors for unhandled events
       const handledEvents = ['ping', 'pull_request']
@@ -106,7 +106,7 @@ export default {
       if (verbose) console.log('Responding - 200')
       return new Response('{ ok: true }', { status: 200 })
     } catch (error) {
-      if (verbose) console.error('Error caught:', error)
+      console.error('Error caught:', error)
       sentry.captureException(error)
       return new Response(`An error occurred ${error}`, { status: 500 })
     }
