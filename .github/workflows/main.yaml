@@ -38,6 +38,6 @@ jobs:
         run: yarn typecheck
 
       - name: Build
-        run: yarn build
+        run: yarn build --env production
 
       # todo - deploy

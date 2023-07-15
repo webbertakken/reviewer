@@ -5,13 +5,12 @@
   "type": "module",
   "exports": "./index.js",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "scripts": {
     "dev": "wrangler dev src/index.mts",
-    "deploy": "wrangler deploy src/index.mts",
-    "build": "tsc -p tsconfig.json",
-    "preview": "vite preview",
+    "deploy": "wrangler deploy src/index.mts --env production",
+    "build": "wrangler build --env production",
     "lint": "eslint src --ext js,ts,mts --max-warnings 0 ",
     "fix": "eslint src --ext js,ts,mts --max-warnings 0 --fix",
     "test": "vitest",
@@ -38,6 +37,7 @@
     "dotenv": "^16.3.1",
     "esm": "^3.2.25",
     "octokit": "^2.1.0",
+    "toucan-js": "^3.1.0",
     "ts-dedent": "^2.2.0",
     "wrangler": "^3.2.0"
   },

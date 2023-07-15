@@ -11,3 +11,10 @@ node_compat = true
 [placement]
 mode = "smart"
 
+[vars]
+ENVIRONMENT = "local"
+MODE = "development"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+MODE = "production"
