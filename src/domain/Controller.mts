@@ -1,13 +1,10 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
 import { createPullRequestActions } from './PullRequestActions.mjs'
-import { hasCorrectConfig } from '../config/hasCorrectConfig.mjs'
 import type { Config } from '../config/config.mjs'
 
 export type Controller = ReturnType<typeof createController>
 
 export const createController = (config: Config, installationId: number) => {
-  if (!hasCorrectConfig(config)) throw new Error('Config is not set up correctly')
-
   return {
     async onSynchronise(event: EmitterWebhookEvent<'pull_request.synchronize'>) {
       console.log('PullRequest.onSynchronise')

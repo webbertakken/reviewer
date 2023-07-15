@@ -1,9 +1,21 @@
+# Global
+ENVIRONMENT="local"
+MODE="development"
+
+# Settings
 MOCK_GPT=true
 APP_VERBOSE=false
 GPT_DEBUG=false
-OPENAI_API_KEY=
-GH_APP_CLIENT_SECRET=
-GH_APP_SECRET_TOKEN=
+
+# OpenAI
+OPENAI_API_KEY="OpenAI API Key"
+
+# Github
+GH_APP_CLIENT_SECRET="GitHub App Client Secret"
+GH_APP_SECRET_TOKEN="GitHub App Secret Token"
 # Convert the private key (that you get from the GitHub App settings) to PKCS8 format
 # openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in pr-code-reviewer.private-key.pem -out private-key-pkcs8.key
 GH_APP_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n......"
+
+# Sentry
+SENTRY_DSN="https://......"
