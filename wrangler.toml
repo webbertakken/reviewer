@@ -15,6 +15,6 @@ mode = "smart"
 ENVIRONMENT = "local"
 MODE = "development"
 
-[env.production.vars]
-ENVIRONMENT = "production"
-MODE = "production"
+[env.production]
+name = "code-reviewer"
+vars = { ENVIRONMENT = "production", MODE = "production" }
