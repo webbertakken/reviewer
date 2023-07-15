@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "wrangler dev src/index.mts",
     "deploy": "wrangler deploy src/index.mts --env production",
-    "build": "wrangler build --env production",
+    "build": "wrangler deploy --dry-run --outdir=dist",
     "lint": "eslint src --ext js,ts,mts --max-warnings 0 ",
     "fix": "eslint src --ext js,ts,mts --max-warnings 0 --fix",
     "test": "vitest",
