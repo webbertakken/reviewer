@@ -40,6 +40,10 @@ export default {
       const event = WebhookEvent.create(id, eventName, requestPayload)
       if (verbose) console.log(`Event: ${event.name} (${event.id})`)
 
+      // Skip unused events
+      const unusedEvents = ['check_suite', 'push']
+      if (!unusedEvents.includes(event.name)) return new Response('OK', { status: 200 })
+
       // Log errors for unhandled events
       const handledEvents = ['ping', 'pull_request']
       if (!handledEvents.includes(event.name)) {

@@ -7,6 +7,6 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['html', 'lcov', 'clover'],
     },
-    setupFiles: ['./setupTests.ts'],
+    setupFiles: ['./vitest.setup.ts'],
   },
 })

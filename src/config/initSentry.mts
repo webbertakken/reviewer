@@ -11,8 +11,10 @@ export const initSentry = (
   config: Config['sentry'],
   request: Request,
   context: ExecutionContext,
-) => {
-  const { dsn, clientId, clientSecret, environment } = config
+): Toucan => {
+  const { dsn, clientId, clientSecret, environment, enabled } = config
+
+  if (!enabled) return { captureException: () => {}, captureMessage: () => {} } as never
 
   const sentry: Toucan = new Toucan({
     dsn,

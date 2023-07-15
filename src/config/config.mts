@@ -47,6 +47,7 @@ export const createConfig = (env: Env) => {
       debug: env.GPT_DEBUG === 'true',
     },
     sentry: {
+      enabled: env.MODE === 'production',
       dsn: env.SENTRY_DSN || '',
       environment: env.ENVIRONMENT,
       clientId: env.SENTRY_DSN?.split('/')[3] || '',

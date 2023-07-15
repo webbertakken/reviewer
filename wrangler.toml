@@ -11,10 +11,6 @@ node_compat = true
 [placement]
 mode = "smart"
 
-[vars]
-ENVIRONMENT = "local"
-MODE = "development"
-
 [env.production]
 name = "code-reviewer"
 vars = { ENVIRONMENT = "production", MODE = "production" }

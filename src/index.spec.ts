@@ -7,6 +7,7 @@ describe('Worker', () => {
 
   beforeAll(async () => {
     worker = await unstable_dev('src/index.mts', {
+      vars: process.env,
       experimental: { disableExperimentalWarning: true },
     })
   })
@@ -16,11 +17,14 @@ describe('Worker', () => {
   })
 
   it('should return 200 response', async () => {
+    // Arrange
     const req = new Request('https://example.com', { method: 'GET' })
-    const resp = await worker.fetch(req.url)
-    expect(resp.status).toBe(200)
 
-    const text = await resp.text()
-    expect(text).toBe('OK')
+    // Act
+    const response = await worker.fetch(req.url)
+
+    // Assert
+    expect(await response.text()).toStrictEqual('OK')
+    expect(response.status).toStrictEqual(200)
   })
 })
