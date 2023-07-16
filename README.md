@@ -34,6 +34,10 @@ This repository contains the source code for PR Code Reviewer (GitHub App).
 - 🚀 Suggestions for better idiomatic code
 - 🎉 Instant PR feedback to help developers grow and keep their flow
 
+## How to install
+
+[Visit the app on github](https://github.com/apps/pr-code-reviewer)
+
 ## What's next?
 
 Check out our [Roadmap](https://github.com/users/webbertakken/projects/1/views/1).
