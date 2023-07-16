@@ -54,12 +54,12 @@ export const createPullRequestActions = (
       console.log(changedFiles.length + ` files were updated in ${repository}#${number}`)
 
       // Get input from GPT
-      console.log('Asking GPT to help review the PR...')
-      const prompt =
-        // `Please code review the following diff. Give a maximum of 3 improvements. Ignore any links. Here is the diff: `.concat(
-        `Please do a code review for me without using the internet. Give a maximum of 3 improvements. Focus on idiomatic code and possible bugs. The code difference to review is as follows: `.concat(
-          changedFiles.map((file) => file.patch).join('\n\n'),
-        )
+      if (verbose) console.log('Asking GPT to help review the PR...')
+      const diff = changedFiles
+        .map((file) => `# File: ${file.filename}\n# Changes:\n${file.patch}`)
+        .join('\n\n')
+        .slice(0, 1000)
+      const prompt = `Answer in a maximum of 3 short sentences: What are the most important things to improve in the following code-diff: ${diff}`
 
       if (verbose) console.log(`-------------\n\nGPT prompt:\n${prompt}\n\n-------------`)
 
@@ -79,10 +79,7 @@ export const createPullRequestActions = (
 
       if (suggestions.code.length >= 1) {
         const mostImportantComments = suggestions.code.slice(0, 3)
-        feedback.push(dedent`
-        <ul>
-          ${mostImportantComments.map((comment) => `<li>${comment}</li>`).join('\n')}
-        </ul>`)
+        feedback.push(mostImportantComments.join('\n'))
       }
 
       if (suggestions.description) {

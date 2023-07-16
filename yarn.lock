@@ -1271,13 +1271,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@one-ini/wasm@npm:0.1.1":
-  version: 0.1.1
-  resolution: "@one-ini/wasm@npm:0.1.1"
-  checksum: 11de17108eae57c797e552e36b259398aede999b4a689d78be6459652edc37f3428472410590a9d328011a8751b771063a5648dd5c4205631c55d1d58e313156
-  languageName: node
-  linkType: hard
-
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -2408,13 +2401,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "commander@npm:11.0.0"
-  checksum: 6621954e1e1d078b4991c1f5bbd9439ad37aa7768d6ab4842de1dbd4d222c8a27e1b8e62108b3a92988614af45031d5bb2a2aaa92951f4d0c934d1a1ac564bb4
-  languageName: node
-  linkType: hard
-
 "concat-map@npm:0.0.1":
   version: 0.0.1
   resolution: "concat-map@npm:0.0.1"
@@ -2669,20 +2655,6 @@ __metadata:
   dependencies:
     safe-buffer: ^5.0.1
   checksum: 207f9ab1c2669b8e65540bce29506134613dd5f122cccf1e6a560f4d63f2732d427d938f8481df175505aad94583bcb32c688737bb39a6df0625f903d6d93c03
-  languageName: node
-  linkType: hard
-
-"editorconfig@npm:^1.0.2":
-  version: 1.0.3
-  resolution: "editorconfig@npm:1.0.3"
-  dependencies:
-    "@one-ini/wasm": 0.1.1
-    commander: ^11.0.0
-    minimatch: 9.0.1
-    semver: ^7.5.3
-  bin:
-    editorconfig: bin/editorconfig
-  checksum: 40ff29a92c628a1f00b44af538aac7e845fce7986606992d46138387a5299506e6cfc2ba0aed7b58b37865b00991217b19e8bf664174b890b2b8c13731fcae45
   languageName: node
   linkType: hard
 
@@ -2941,17 +2913,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-editorconfig@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "eslint-plugin-editorconfig@npm:4.0.3"
-  dependencies:
-    editorconfig: ^1.0.2
-    eslint: ^8.40.0
-    klona: ^2.0.4
-  checksum: 8563c11ddf9d9f206fa5a2cd34bbe032043ea4975f66aa5f1cd3c71a01e84fb6c38e8b35c151aa838ec8cd6d37bad29c0e051a3c2de6362a39ba5e5f5c594a06
-  languageName: node
-  linkType: hard
-
 "eslint-plugin-prettier@npm:^4.2.1":
   version: 4.2.1
   resolution: "eslint-plugin-prettier@npm:4.2.1"
@@ -3005,7 +2966,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.40.0, eslint@npm:^8.43.0":
+"eslint@npm:^8.43.0":
   version: 8.44.0
   resolution: "eslint@npm:8.44.0"
   dependencies:
@@ -4070,13 +4031,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"klona@npm:^2.0.4":
-  version: 2.0.6
-  resolution: "klona@npm:2.0.6"
-  checksum: ac9ee3732e42b96feb67faae4d27cf49494e8a3bf3fa7115ce242fe04786788e0aff4741a07a45a2462e2079aa983d73d38519c85d65b70ef11447bbc3c58ce7
-  languageName: node
-  linkType: hard
-
 "levn@npm:^0.4.1":
   version: 0.4.1
   resolution: "levn@npm:0.4.1"
@@ -4360,15 +4314,6 @@ __metadata:
     youch: ^3.2.2
     zod: ^3.20.6
   checksum: c497a2606e8f5c7e0b9787ec0a3f1a13dcdc37bd559a417d286fe06544ba1199ea827e18909e39c46fd9abcc53ee3fef9c4ee539e9679b163832a5f7830ddccf
-  languageName: node
-  linkType: hard
-
-"minimatch@npm:9.0.1":
-  version: 9.0.1
-  resolution: "minimatch@npm:9.0.1"
-  dependencies:
-    brace-expansion: ^2.0.1
-  checksum: 97f5f5284bb57dc65b9415dec7f17a0f6531a33572193991c60ff18450dcfad5c2dad24ffeaf60b5261dccd63aae58cc3306e2209d57e7f88c51295a532d8ec3
   languageName: node
   linkType: hard
 
@@ -5226,7 +5171,6 @@ __metadata:
     dotenv: ^16.3.1
     eslint: ^8.43.0
     eslint-config-prettier: ^8.8.0
-    eslint-plugin-editorconfig: ^4.0.3
     eslint-plugin-prettier: ^4.2.1
     eslint-plugin-vitest: ^0.2.6
     esm: ^3.2.25
@@ -5375,7 +5319,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8, semver@npm:^7.5.3":
+"semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8":
   version: 7.5.3
   resolution: "semver@npm:7.5.3"
   dependencies:
