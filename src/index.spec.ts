@@ -24,7 +24,7 @@ describe('Worker', () => {
     const response = await worker.fetch(req.url)
 
     // Assert
-    expect(await response.text()).toStrictEqual('OK')
-    expect(response.status).toStrictEqual(200)
+    expect(await response.text()).toBe('OK')
+    expect(response.status).toBe(200)
   })
 })
