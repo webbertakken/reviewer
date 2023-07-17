@@ -41,7 +41,7 @@ export default {
       if (verbose) console.log(`Event: ${event.name} (${event.id})`)
 
       // Skip unused events
-      const unusedEvents = ['check_suite', 'push', 'installation_repositories']
+      const unusedEvents = ['check_suite', 'push', 'installation_repositories', 'commit_comment']
       if (unusedEvents.includes(event.name)) return new Response('OK', { status: 200 })
 
       // Log errors for unhandled events
