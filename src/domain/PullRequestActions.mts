@@ -59,7 +59,7 @@ export const createPullRequestActions = (
         .map((file) => `# File: ${file.filename}\n# Changes:\n${file.patch}`)
         .join('\n\n')
         .slice(0, 1000)
-      const prompt = `Answer in a maximum of 3 short sentences: What are the most important things to improve in the following code-diff: ${diff}`
+      const prompt = `Answer in a maximum of 3 short sentences: What are the most important things (if any) that can be improved in the following code-diff: ${diff}`
 
       if (verbose) console.log(`-------------\n\nGPT prompt:\n${prompt}\n\n-------------`)
 
