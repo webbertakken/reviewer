@@ -36,7 +36,7 @@ This repository contains the source code for PR Code Reviewer (GitHub App).
 
 ## How to install
 
-[Visit the app on github](https://github.com/apps/pr-code-reviewer)
+View the App in GitHub [Marketplace](https://github.com/marketplace/pr-code-reviewer).
 
 ## What's next?
 
