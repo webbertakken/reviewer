@@ -25,7 +25,7 @@ Steps to be performed to submit a pull request:
 
 #### Pull Request Prerequisites
 
-You use Volta to manage your Node version. (See [DEVELOPMENT.md](./DEVELOPMENT.md) for more information)
+You use mise to manage your Node and Yarn versions. (See [DEVELOPMENT.md](./DEVELOPMENT.md) for more information)
 
 Please note that commit hooks will run automatically to perform some tasks;
 

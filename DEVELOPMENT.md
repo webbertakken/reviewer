@@ -9,7 +9,7 @@
 
 ## Prerequisites
 
-- Volta (a lightweight zero-config tool manager, [installation](https://docs.volta.sh/guide/getting-started#installation))
+- mise (pins Node and Yarn in `mise.toml`, [installation](https://mise.jdx.dev/getting-started.html)), then run `mise install`
 
 ## Setup
 
@@ -67,15 +67,10 @@ yarn deploy
 
 ## Upgrading tools
 
-Upgrade Node
+Upgrade Node or Yarn by editing the pins in `mise.toml`, then run `mise install`.
+Keep `packageManager` in `package.json` in sync with the Yarn pin.
 
-```bash
-volta pin node@lts
-```
+## Git hooks
 
-Upgrade Yarn
-
-```bash
-yarn set version stable
-volta pin yarn
-```
+Husky installs the hooks on `yarn install`, and `yarn dev` and `yarn test` reinstall them when they are missing.
+In a fresh `git worktree`, run `yarn setup:hooks` once before committing.
