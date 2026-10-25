@@ -1,9 +1,8 @@
 name = "code-reviewer"
 main = "src/index.mts"
-compatibility_date = "2023-05-18"
+compatibility_date = "2024-09-23"
 
-# Todo - remove this if possible
-node_compat = true
+compatibility_flags = ["nodejs_compat"]
 
 # Placement mode for the application instances.
 # "default" = Requests are always processed close to your end-users.
