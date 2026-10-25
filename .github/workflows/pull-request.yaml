@@ -9,22 +9,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: package.json
-          cache: 'yarn'
+      # Installs every tool pinned in mise.toml, Node and Yarn included
+      - name: Install tools (from mise.toml)
+        uses: jdx/mise-action@v5
 
       - name: Install deps
-        run: yarn install --frozen-lockfile --immutable
+        run: yarn install --immutable
 
       - name: Tests
         run: yarn coverage --dir src
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
