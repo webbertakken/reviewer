@@ -11,8 +11,8 @@
     "dev": "wrangler dev src/index.mts",
     "deploy": "wrangler deploy src/index.mts --env production",
     "build": "wrangler deploy --dry-run --outdir=dist",
-    "lint": "eslint src --ext js,ts,mts --max-warnings 0 ",
-    "fix": "eslint src --ext js,ts,mts --max-warnings 0 --fix",
+    "lint": "eslint src --max-warnings 0",
+    "fix": "eslint src --max-warnings 0 --fix",
     "test": "vitest",
     "coverage": "vitest --coverage",
     "typecheck": "tsc --pretty --noEmit",
@@ -42,28 +42,29 @@
     "wrangler": "^3.2.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/jest": "^29.5.2",
-    "@typescript-eslint/eslint-plugin": "^5.60.1",
-    "@typescript-eslint/parser": "^5.60.1",
     "@vitest/coverage-c8": "^0.32.2",
     "@vitest/coverage-v8": "^0.33.0",
+    "@vitest/eslint-plugin": "^1.6.28",
     "concurrently": "^8.2.0",
     "cross-env": "^7.0.3",
     "eslint": "^10.0.0",
-    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-vitest": "^0.2.6",
+    "globals": "^17.13.0",
     "husky": "=8.0.3",
     "lint-staged": "=13.2.1",
     "nodemon": "^2.0.22",
     "prettier": "^2.8.8",
     "typescript": "^5.1.5",
+    "typescript-eslint": "^8.72.1",
     "vitest": "^0.33.0",
     "vitest-environment-miniflare": "^2.14.0"
   },
   "packageManager": "yarn@3.6.0",
   "volta": {
-    "node": "20.4.0",
+    "node": "24.22.1",
     "yarn": "3.6.0"
   }
 }
