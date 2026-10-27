@@ -131,10 +131,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cloudflare/workers-types@npm:^4.20221111.1, @cloudflare/workers-types@npm:^4.20230628.0":
+"@cloudflare/workers-types@npm:^4.20221111.1":
   version: 4.20230628.0
   resolution: "@cloudflare/workers-types@npm:4.20230628.0"
   checksum: cee386fe7d55dfb658bc623ed8812b0ce1b4ba5f0fb56a4f604285f6c6f2c21fbbffa96475c39bd4f4789db4e3eba2c4aef63fb52603ac682aa67eec77693700
+  languageName: node
+  linkType: hard
+
+"@cloudflare/workers-types@npm:^5.0.0":
+  version: 5.20261027.1
+  resolution: "@cloudflare/workers-types@npm:5.20261027.1"
+  checksum: e1b4ff16b39cbd87bb4bd9db64a02fa7270ce50ed927715dc1393d184b5410cd38ef64cdb8e94456ee8d6091486ffd5bd46dffa6f27280cf034a3f04bf1fde32
   languageName: node
   linkType: hard
 
@@ -5359,7 +5366,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "reviewer@workspace:."
   dependencies:
-    "@cloudflare/workers-types": ^4.20230628.0
+    "@cloudflare/workers-types": ^5.0.0
     "@octokit/auth-app": ^5.0.6
     "@octokit/rest": ^19.0.13
     "@octokit/types": ^10.0.0
