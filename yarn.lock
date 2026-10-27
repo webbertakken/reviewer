@@ -1667,13 +1667,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dedent@npm:^0.7.0":
-  version: 0.7.0
-  resolution: "@types/dedent@npm:0.7.0"
-  checksum: b9b7f0c42d99da764be75dd00b2f2be162f5a0ca43aafe0c740efa76b5f37f8a4f4e2ccc84883054e06e05c1169733aa8ee7750da0334c9cba26d9e10ae844f1
-  languageName: node
-  linkType: hard
-
 "@types/istanbul-lib-coverage@npm:*, @types/istanbul-lib-coverage@npm:^2.0.1":
   version: 2.0.4
   resolution: "@types/istanbul-lib-coverage@npm:2.0.4"
@@ -5389,7 +5382,6 @@ __metadata:
     "@octokit/auth-app": ^5.0.6
     "@octokit/rest": ^19.0.13
     "@octokit/types": ^10.0.0
-    "@types/dedent": ^0.7.0
     "@types/jest": ^30.0.0
     "@typescript-eslint/eslint-plugin": ^5.60.1
     "@typescript-eslint/parser": ^5.60.1
