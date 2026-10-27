@@ -34,7 +34,7 @@
     "@octokit/types": "^10.0.0",
     "@types/dedent": "^0.7.0",
     "chatgpt": "^5.2.5",
-    "dotenv": "^16.3.1",
+    "dotenv": "^18.0.0",
     "esm": "^3.2.25",
     "octokit": "^2.1.0",
     "toucan-js": "^3.1.0",
