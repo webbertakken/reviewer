@@ -3,15 +3,14 @@ import { createAppAuth } from '@octokit/auth-app'
 import { Config } from '../config/config.mjs'
 import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types'
 
-const octokit = new Octokit()
-export type PullRequests = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.list>
+export type PullRequests = GetResponseDataTypeFromEndpointMethod<Octokit['pulls']['list']>
 export type PullRequest = PullRequests[number]
-export type PullRequestDetails = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.get>
+export type PullRequestDetails = GetResponseDataTypeFromEndpointMethod<Octokit['pulls']['get']>
 export type PullRequestComments = GetResponseDataTypeFromEndpointMethod<
-  typeof octokit.issues.listComments
+  Octokit['issues']['listComments']
 >
 
-type PullRequestFilesRaw = GetResponseDataTypeFromEndpointMethod<typeof octokit.pulls.listFiles>
+type PullRequestFilesRaw = GetResponseDataTypeFromEndpointMethod<Octokit['pulls']['listFiles']>
 export type PullRequestFiles = Array<{ contents: string } & PullRequestFilesRaw[number]>
 
 export class GitHub {
