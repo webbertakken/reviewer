@@ -42,7 +42,7 @@
     "wrangler": "^3.2.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.2",
+    "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "@vitest/coverage-c8": "^0.32.2",
