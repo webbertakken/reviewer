@@ -1589,15 +1589,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dedent@npm:^1.0.0":
-  version: 1.7.2
-  resolution: "@types/dedent@npm:1.7.2"
-  dependencies:
-    dedent: "*"
-  checksum: c55c08fc8b803d21a40a6ccea8c7fe6a4fbfff7ea00c6209606558d198aa0efb730e57978e4859fe8def0af4762cf066110b8193aa8f8d7346118ddf75f33638
-  languageName: node
-  linkType: hard
-
 "@types/istanbul-lib-coverage@npm:*, @types/istanbul-lib-coverage@npm:^2.0.0, @types/istanbul-lib-coverage@npm:^2.0.1":
   version: 2.0.4
   resolution: "@types/istanbul-lib-coverage@npm:2.0.4"
@@ -2734,18 +2725,6 @@ __metadata:
   dependencies:
     ms: ^2.1.1
   checksum: b3d8c5940799914d30314b7c3304a43305fd0715581a919dacb8b3176d024a782062368405b47491516d2091d6462d4d11f2f4974a405048094f8bfebfa3071c
-  languageName: node
-  linkType: hard
-
-"dedent@npm:*":
-  version: 1.7.2
-  resolution: "dedent@npm:1.7.2"
-  peerDependencies:
-    babel-plugin-macros: ^3.1.0
-  peerDependenciesMeta:
-    babel-plugin-macros:
-      optional: true
-  checksum: 58f46def0e0310f4c6298f648fa1b1f2de074879f9035ff08285279f91060bb9b3c83d9c918b3ef2be3e08705f8858dc9139d9931832d89788d6efd3021c535d
   languageName: node
   linkType: hard
 
@@ -5249,7 +5228,6 @@ __metadata:
     "@octokit/auth-app": ^5.0.6
     "@octokit/rest": ^19.0.13
     "@octokit/types": ^10.0.0
-    "@types/dedent": ^1.0.0
     "@types/jest": ^29.5.2
     "@typescript-eslint/eslint-plugin": ^5.60.1
     "@typescript-eslint/parser": ^5.60.1
