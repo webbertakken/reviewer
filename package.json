@@ -35,7 +35,7 @@
     "chatgpt": "^5.2.5",
     "dotenv": "^18.0.0",
     "esm": "^3.2.25",
-    "octokit": "^2.1.0",
+    "octokit": "^3.2.2",
     "toucan-js": "^3.1.0",
     "ts-dedent": "^2.2.0",
     "wrangler": "^3.2.0"
