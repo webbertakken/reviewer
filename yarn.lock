@@ -4342,6 +4342,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"miniflare@patch:miniflare@npm%3A3.20250718.3#./.yarn/patches/miniflare-npm-3.20250718.3-248a288d9b.patch::locator=reviewer%40workspace%3A.":
+  version: 3.20250718.3
+  resolution: "miniflare@patch:miniflare@npm%3A3.20250718.3#./.yarn/patches/miniflare-npm-3.20250718.3-248a288d9b.patch::version=3.20250718.3&hash=e46a7d&locator=reviewer%40workspace%3A."
+  dependencies:
+    "@cspotcode/source-map-support": 0.8.1
+    acorn: 8.14.0
+    acorn-walk: 8.3.2
+    exit-hook: 2.2.1
+    glob-to-regexp: 0.4.1
+    stoppable: 1.1.0
+    undici: ^5.28.5
+    workerd: 1.20250718.0
+    ws: 8.18.0
+    youch: 3.3.4
+    zod: 3.22.3
+  bin:
+    miniflare: bootstrap.js
+  checksum: e93a608bd8a344855b1ea3cd95d46435b7ce1909b5b7b15f0f7a667c7c1e46cc9ebc6acd95f683db54bad3fcab7e939fcd94b2cbe62486493ce401fb3e388aa6
+  languageName: node
+  linkType: hard
+
 "minimatch@npm:^10.2.2, minimatch@npm:^10.2.4, minimatch@npm:^10.2.5":
   version: 10.2.6
   resolution: "minimatch@npm:10.2.6"
@@ -6160,9 +6181,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:3.22.3":
-  version: 3.22.3
-  resolution: "zod@npm:3.22.3"
-  checksum: 65b05139be337078a70700b05942ab7f2ef5f11abe194df14ef257fac4e5c383476a4dc290731842996bd57fc8d5bf38e5a4c907fe8cdf8b15477f8da5bfcc00
+"zod@npm:^4.6.6":
+  version: 4.6.7
+  resolution: "zod@npm:4.6.7"
+  checksum: 6801f5067dd43204d5ed2b4f2f0d09f891365ecfdd385877901e42f6f6ebf67e8943b385c71eaba53081029dd21f4740f16c91497a06f95195e209bffef92056
   languageName: node
   linkType: hard

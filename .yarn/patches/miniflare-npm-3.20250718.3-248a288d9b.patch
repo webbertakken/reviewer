@@ -1,0 +1,195 @@
+diff --git a/dist/src/index.js b/dist/src/index.js
+index 7550b22e44b68e0d83559d5a64be873442b25f0c..922b7ef8335614ea2e6bac2faecf31f13a64dc49 100644
+--- a/dist/src/index.js
++++ b/dist/src/index.js
+@@ -1382,7 +1382,7 @@ function zod_worker_default() {
+ 
+ // src/index.ts
+ var import_ws3 = require("ws");
+-var import_zod23 = require("zod");
++var import_zod23 = require("zod/v3");
+ 
+ // src/cf.ts
+ var import_assert = __toESM(require("assert"));
+@@ -2637,8 +2637,8 @@ var QueueBindings = {
+ 
+ // src/workers/shared/zod.worker.ts
+ var import_node_buffer3 = require("node:buffer");
+-var import_zod = require("zod");
+-var import_zod2 = require("zod");
++var import_zod = require("zod/v3");
++var import_zod2 = require("zod/v3");
+ var HEX_REGEXP = /^[0-9a-f]*$/i;
+ var BASE64_REGEXP = /^[0-9a-z+/=]*$/i;
+ var HexDataSchema = import_zod.z.string().regex(HEX_REGEXP).transform((hex) => import_node_buffer3.Buffer.from(hex, "hex"));
+@@ -2997,7 +2997,7 @@ async function readPrefix(stream, prefixLength) {
+ // src/shared/types.ts
+ var import_assert2 = __toESM(require("assert"));
+ var import_path5 = __toESM(require("path"));
+-var import_zod3 = require("zod");
++var import_zod3 = require("zod/v3");
+ function zAwaitable(type) {
+   return type.or(import_zod3.z.promise(type));
+ }
+@@ -3483,7 +3483,7 @@ var REDIRECTS_FILENAME = "_redirects";
+ var HEADERS_FILENAME = "_headers";
+ 
+ // ../workers-shared/utils/types.ts
+-var import_zod4 = require("zod");
++var import_zod4 = require("zod/v3");
+ var InternalConfigSchema = import_zod4.z.object({
+   account_id: import_zod4.z.number().optional(),
+   script_id: import_zod4.z.number().optional()
+@@ -4211,7 +4211,7 @@ function strip_cf_connecting_ip_worker_default() {
+ }
+ 
+ // src/plugins/core/index.ts
+-var import_zod12 = require("zod");
++var import_zod12 = require("zod/v3");
+ 
+ // src/runtime/index.ts
+ var import_assert4 = __toESM(require("assert"));
+@@ -4220,7 +4220,7 @@ var import_events2 = require("events");
+ var import_readline = __toESM(require("readline"));
+ var import_stream = require("stream");
+ var import_workerd2 = __toESM(require("workerd"));
+-var import_zod5 = require("zod");
++var import_zod5 = require("zod/v3");
+ 
+ // ../../node_modules/.pnpm/capnp-es@0.0.7_typescript@5.7.3/node_modules/capnp-es/dist/shared/capnp-es.DAoyiaGr.mjs
+ var ListElementSize = /* @__PURE__ */ ((ListElementSize2) => {
+@@ -11796,7 +11796,7 @@ function cache_entry_noop_worker_default() {
+ }
+ 
+ // src/plugins/cache/index.ts
+-var import_zod7 = require("zod");
++var import_zod7 = require("zod/v3");
+ 
+ // src/plugins/shared/index.ts
+ var import_crypto = __toESM(require("crypto"));
+@@ -11804,7 +11804,7 @@ var import_fs13 = require("fs");
+ var import_promises3 = __toESM(require("fs/promises"));
+ var import_path16 = __toESM(require("path"));
+ var import_url14 = require("url");
+-var import_zod6 = require("zod");
++var import_zod6 = require("zod/v3");
+ 
+ // embed-worker:/home/runner/work/workers-sdk/workers-sdk/packages/miniflare/src/workers/shared/object-entry.worker.ts
+ var import_fs12 = __toESM(require("fs"));
+@@ -12161,7 +12161,7 @@ var CACHE_PLUGIN = {
+ 
+ // src/plugins/do/index.ts
+ var import_promises5 = __toESM(require("fs/promises"));
+-var import_zod8 = require("zod");
++var import_zod8 = require("zod/v3");
+ var DurableObjectsOptionsSchema = import_zod8.z.object({
+   durableObjects: import_zod8.z.record(
+     import_zod8.z.union([
+@@ -12289,7 +12289,7 @@ var import_url15 = require("url");
+ var import_util = require("util");
+ var import_acorn = require("acorn");
+ var import_acorn_walk = require("acorn-walk");
+-var import_zod9 = require("zod");
++var import_zod9 = require("zod/v3");
+ 
+ // src/plugins/core/node-compat.ts
+ function getNodeCompat(compatibilityDate = "2000-01-01", compatibilityFlags, opts) {
+@@ -12689,7 +12689,7 @@ var import_worker_threads = require("worker_threads");
+ var import_fs15 = __toESM(require("fs"));
+ var import_path18 = __toESM(require("path"));
+ var import_url16 = require("url");
+-var import_zod10 = require("zod");
++var import_zod10 = require("zod/v3");
+ 
+ // src/plugins/core/errors/sourcemap.ts
+ var import_assert6 = __toESM(require("assert"));
+@@ -13606,7 +13606,7 @@ var ProxyStubHandler = class extends Function {
+ };
+ 
+ // src/plugins/core/services.ts
+-var import_zod11 = require("zod");
++var import_zod11 = require("zod/v3");
+ var kCurrentWorker = Symbol.for("miniflare.kCurrentWorker");
+ var HttpOptionsHeaderSchema = import_zod11.z.object({
+   name: import_zod11.z.string(),
+@@ -14366,7 +14366,7 @@ function getWorkerScript(options, workerIndex, additionalModuleNames) {
+ }
+ 
+ // src/plugins/assets/schema.ts
+-var import_zod13 = require("zod");
++var import_zod13 = require("zod/v3");
+ var AssetsOptionsSchema = import_zod13.z.object({
+   assets: import_zod13.z.object({
+     // User Worker name or vitest runner - this is only ever set inside miniflare
+@@ -14701,7 +14701,7 @@ function database_worker_default() {
+ }
+ 
+ // src/plugins/d1/index.ts
+-var import_zod14 = require("zod");
++var import_zod14 = require("zod/v3");
+ var D1OptionsSchema = import_zod14.z.object({
+   d1Databases: import_zod14.z.union([import_zod14.z.record(import_zod14.z.string()), import_zod14.z.string().array()]).optional()
+ });
+@@ -14818,7 +14818,7 @@ var D1_PLUGIN = {
+ 
+ // src/plugins/hyperdrive/index.ts
+ var import_node_assert3 = __toESM(require("node:assert"));
+-var import_zod15 = require("zod");
++var import_zod15 = require("zod/v3");
+ var HYPERDRIVE_PLUGIN_NAME = "hyperdrive";
+ function hasPostgresProtocol(url21) {
+   return url21.protocol === "postgresql:" || url21.protocol === "postgres:";
+@@ -14942,7 +14942,7 @@ function namespace_worker_default() {
+ }
+ 
+ // src/plugins/kv/index.ts
+-var import_zod16 = require("zod");
++var import_zod16 = require("zod/v3");
+ 
+ // src/plugins/kv/constants.ts
+ var KV_PLUGIN_NAME = "kv";
+@@ -15186,7 +15186,7 @@ function pipeline_worker_default() {
+ }
+ 
+ // src/plugins/pipelines/index.ts
+-var import_zod17 = require("zod");
++var import_zod17 = require("zod/v3");
+ var PipelineOptionsSchema = import_zod17.z.object({
+   pipelines: import_zod17.z.union([import_zod17.z.record(import_zod17.z.string()), import_zod17.z.string().array()]).optional()
+ });
+@@ -15254,7 +15254,7 @@ function broker_worker_default() {
+ }
+ 
+ // src/plugins/queues/index.ts
+-var import_zod18 = require("zod");
++var import_zod18 = require("zod/v3");
+ 
+ // src/plugins/queues/errors.ts
+ var QueuesError = class extends MiniflareError {
+@@ -15397,7 +15397,7 @@ function bucket_worker_default() {
+ }
+ 
+ // src/plugins/r2/index.ts
+-var import_zod19 = require("zod");
++var import_zod19 = require("zod/v3");
+ var R2OptionsSchema = import_zod19.z.object({
+   r2Buckets: import_zod19.z.union([import_zod19.z.record(import_zod19.z.string()), import_zod19.z.string().array()]).optional()
+ });
+@@ -15508,7 +15508,7 @@ function ratelimit_worker_default() {
+ }
+ 
+ // src/plugins/ratelimit/index.ts
+-var import_zod20 = require("zod");
++var import_zod20 = require("zod/v3");
+ var PeriodType = /* @__PURE__ */ ((PeriodType2) => {
+   PeriodType2[PeriodType2["TENSECONDS"] = 10] = "TENSECONDS";
+   PeriodType2[PeriodType2["MINUTE"] = 60] = "MINUTE";
+@@ -15603,7 +15603,7 @@ function binding_worker_default() {
+ }
+ 
+ // src/plugins/workflows/index.ts
+-var import_zod21 = require("zod");
++var import_zod21 = require("zod/v3");
+ var WorkflowsOptionsSchema = import_zod21.z.object({
+   workflows: import_zod21.z.record(
+     import_zod21.z.object({
