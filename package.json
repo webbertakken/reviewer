@@ -64,6 +64,7 @@
     "undici@^5.28.5": "^6.29.1",
     "zod@3.22.3": "^4.6.6",
     "sharp@^0.33.5": "^0.35.5",
+    "esbuild@0.17.19": "^0.25.0",
     "miniflare@3.20250718.3": "patch:miniflare@npm%3A3.20250718.3#./.yarn/patches/miniflare-npm-3.20250718.3-248a288d9b.patch"
   },
   "packageManager": "yarn@3.6.0",
