@@ -60,6 +60,9 @@
     "vitest": "^3.2.7",
     "vitest-environment-miniflare": "^2.14.0"
   },
+  "resolutions": {
+    "tinypool@^1.1.1": "^2.2.0"
+  },
   "packageManager": "yarn@3.6.0",
   "volta": {
     "node": "20.20.2",
