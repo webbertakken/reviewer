@@ -66,6 +66,7 @@
     "sharp@^0.33.5": "^0.35.5",
     "esbuild@0.17.19": "^0.25.0",
     "ws@8.18.0": "^8.22.0",
+    "@octokit/plugin-paginate-rest@^6.1.2": "^9.2.2",
     "miniflare@3.20250718.3": "patch:miniflare@npm%3A3.20250718.3#./.yarn/patches/miniflare-npm-3.20250718.3-248a288d9b.patch"
   },
   "packageManager": "yarn@3.6.0",
