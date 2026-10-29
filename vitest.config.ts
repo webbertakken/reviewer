@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    environment: 'miniflare',
+    environment: 'node',
     coverage: {
       provider: 'v8',
       reporter: ['html', 'lcov', 'clover'],
