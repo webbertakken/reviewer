@@ -1,5 +1,6 @@
 import { ChatGPTAPI, ChatMessage, SendMessageOptions } from 'chatgpt'
 import { Config } from '../config/config.mjs'
+import { createFetchWithUpstreamRetry } from './GitHub.mjs'
 
 export class Gpt {
   private readonly client: ChatGPTAPI
@@ -15,8 +16,7 @@ export class Gpt {
       apiKey,
       debug,
       completionParams: { model },
-      // Workaround for fetch in worker env: https://github.com/transitive-bullshit/chatgpt-api/issues/592#issuecomment-1614001104
-      fetch: self.fetch.bind(self),
+      fetch: createFetchWithUpstreamRetry(),
     })
   }
 

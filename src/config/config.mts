@@ -43,7 +43,7 @@ export const createConfig = (env: Env) => {
     },
     gpt: {
       apiKey: env.OPENAI_API_KEY || '',
-      model: 'gpt-3.5-turbo', // 'gpt-4', // access not yet granted, should show up here: https://platform.openai.com/account/rate-limits
+      model: env.GPT_MODEL || 'gpt-4o-mini',
       debug: env.GPT_DEBUG === 'true',
     },
     sentry: {
