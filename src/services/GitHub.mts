@@ -13,6 +13,45 @@ export type PullRequestComments = GetResponseDataTypeFromEndpointMethod<
 type PullRequestFilesRaw = GetResponseDataTypeFromEndpointMethod<Octokit['pulls']['listFiles']>
 export type PullRequestFiles = Array<{ contents: string } & PullRequestFilesRaw[number]>
 
+const MIN_UPSTREAM_GATEWAY_STATUS = 502
+const MAX_UPSTREAM_GATEWAY_STATUS = 599
+
+export const isTransientUpstreamStatus = (status: number): boolean =>
+  status >= MIN_UPSTREAM_GATEWAY_STATUS && status <= MAX_UPSTREAM_GATEWAY_STATUS
+
+export const isTransientUpstreamError = (error: unknown): boolean => {
+  if (typeof error !== 'object' || error === null) return false
+
+  if ('status' in error && typeof error.status === 'number') {
+    return isTransientUpstreamStatus(error.status)
+  }
+
+  if ('errors' in error && Array.isArray(error.errors) && error.errors.length > 0) {
+    return error.errors.every(isTransientUpstreamError)
+  }
+
+  return false
+}
+
+export const createFetchWithUpstreamRetry = (
+  baseFetch: typeof fetch = (...args) => globalThis.fetch(...args),
+  retries = 2,
+  retryDelayMs = 50,
+): typeof fetch => {
+  return async (input, init) => {
+    for (let attempt = 0; ; attempt++) {
+      const response = await baseFetch(input, init)
+      if (!isTransientUpstreamStatus(response.status) || attempt >= retries) {
+        return response
+      }
+      await response.body?.cancel().catch(() => {})
+      if (retryDelayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, retryDelayMs * (attempt + 1)))
+      }
+    }
+  }
+}
+
 export class GitHub {
   private readonly client: Octokit
   private readonly meta: { owner: string; repo: string }
@@ -27,7 +66,11 @@ export class GitHub {
 
     this.meta = { owner, repo }
 
-    this.client = new Octokit({ authStrategy: createAppAuth, auth: { ...auth, installationId } })
+    this.client = new Octokit({
+      authStrategy: createAppAuth,
+      auth: { ...auth, installationId },
+      request: { fetch: createFetchWithUpstreamRetry() },
+    })
   }
 
   async getMostRecentPr(): Promise<PullRequest | null> {

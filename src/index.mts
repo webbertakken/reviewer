@@ -8,6 +8,7 @@ import { Octokit } from '@octokit/rest'
 import { createAppAuth } from '@octokit/auth-app'
 import { WebhookEvent } from './domain/WebhookEvent.mjs'
 import { initSentry } from './config/initSentry.mjs'
+import { createFetchWithUpstreamRetry, isTransientUpstreamError } from './services/GitHub.mjs'
 
 export default {
   async fetch(request: Request, env: Env, context: ExecutionContext): Promise<Response> {
@@ -67,15 +68,26 @@ export default {
 
       // GitHub API client
       const { auth } = config.gitHub.api
-      const topLevelClient = new Octokit({ authStrategy: createAppAuth, auth })
+      const topLevelClient = new Octokit({
+        authStrategy: createAppAuth,
+        auth,
+        request: { fetch: createFetchWithUpstreamRetry() },
+      })
       if (verbose) console.log('Top level API client initialised')
 
       // Installation ID
       // @ts-expect-error - find correct types
       const { owner, repo, repository } = WebhookEvent.getRepository(event)
       console.log(repository, owner, repo)
-      const { data: installation } = await topLevelClient.apps.getRepoInstallation({ owner, repo })
-      const installationId = installation?.id || null
+      // @ts-expect-error - find correct types
+      let installationId = WebhookEvent.getInstallationId(event)
+      if (!installationId) {
+        const { data: installation } = await topLevelClient.apps.getRepoInstallation({
+          owner,
+          repo,
+        })
+        installationId = installation?.id || null
+      }
       if (!installationId) return new Response(`No installation in ${repository}`, { status: 400 })
       if (verbose) console.log('Installation ID:', installationId)
 
@@ -97,6 +109,10 @@ export default {
           .receive(event)
           .then(() => verbose && console.log('Event processed. 🎉'))
           .catch((error) => {
+            if (isTransientUpstreamError(error)) {
+              console.warn('Transient upstream gateway response while processing event:', error)
+              return
+            }
             console.error('Error while processing event.', error)
             sentry.captureException(error)
           }),
@@ -106,6 +122,13 @@ export default {
       if (verbose) console.log('Responding - 200')
       return new Response('{ ok: true }', { status: 200 })
     } catch (error) {
+      if (isTransientUpstreamError(error)) {
+        console.warn('Transient upstream gateway response:', error)
+        return new Response('Upstream service unavailable', {
+          status: 503,
+          headers: { 'Retry-After': '5' },
+        })
+      }
       console.error('Error caught:', error)
       sentry.captureException(error)
       return new Response(`An error occurred ${error}`, { status: 500 })
