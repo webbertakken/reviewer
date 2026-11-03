@@ -4,6 +4,8 @@ import { unstable_dev } from 'wrangler'
 import type { UnstableDevWorker } from 'wrangler'
 import { describe, expect, it, beforeAll, afterAll, afterEach, vi } from 'vitest'
 import type { Env } from './config/env.mjs'
+import { createConfig } from './config/config.mjs'
+import * as initSentryModule from './config/initSentry.mjs'
 import workerHandler from './index.mjs'
 import { isTransientUpstreamError } from './services/GitHub.mjs'
 
@@ -145,13 +147,91 @@ describe('Worker', () => {
     })
 
     it('classifies upstream gateway errors including wrapped webhook errors', () => {
+      const iterableWrapper = {
+        *[Symbol.iterator]() {
+          yield { status: 503 }
+        },
+      }
       expect(isTransientUpstreamError({ status: 502 })).toBe(true)
       expect(isTransientUpstreamError({ status: 503 })).toBe(true)
       expect(isTransientUpstreamError({ errors: [{ status: 504 }] })).toBe(true)
+      expect(isTransientUpstreamError(iterableWrapper)).toBe(true)
       expect(isTransientUpstreamError({ status: 500 })).toBe(false)
       expect(isTransientUpstreamError({ status: 404 })).toBe(false)
       expect(isTransientUpstreamError(new Error('unexpected failure'))).toBe(false)
       expect(isTransientUpstreamError(null)).toBe(false)
+    })
+
+    it('defaults chat model to gpt-4o-mini and supports GPT_MODEL override', () => {
+      expect(createConfig(createTestEnv()).gpt.model).toBe('gpt-4o-mini')
+      expect(createConfig({ ...createTestEnv(), GPT_MODEL: 'gpt-4o' } as Env).gpt.model).toBe(
+        'gpt-4o',
+      )
+    })
+
+    it('unwraps webhook handler errors before reporting to Sentry', async () => {
+      // Arrange
+      const captureException = vi.fn()
+      vi.spyOn(initSentryModule, 'initSentry').mockReturnValue({
+        captureException,
+        captureMessage: vi.fn(),
+      } as never)
+      const rootCause = new Error('Model completion request failed')
+      let openAiRequestBody = ''
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+        const url = typeof input === 'string' ? input : input.toString()
+        if (url.endsWith('/access_tokens')) {
+          return new Response(
+            JSON.stringify({ token: 'ghs_test', expires_at: '2099-01-01T00:00:00Z' }),
+            { status: 201, headers: { 'content-type': 'application/json' } },
+          )
+        }
+        if (url.endsWith('/pulls/9/files')) {
+          return new Response(
+            JSON.stringify([{ filename: 'src/index.mts', patch: '+const x = 1' }]),
+            {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            },
+          )
+        }
+        openAiRequestBody = String(init?.body ?? '')
+        throw rootCause
+      })
+      const waitUntilPromises: Promise<unknown>[] = []
+      const ctx: ExecutionContext = {
+        waitUntil: (promise: Promise<unknown>) => {
+          waitUntilPromises.push(promise)
+        },
+        passThroughOnException: vi.fn(),
+        props: {},
+      }
+      const req = createSignedWebhookRequest({
+        action: 'opened',
+        installation: { id: 1337 },
+        pull_request: {
+          number: 9,
+          title: 'Add support for configurable model',
+          body: 'This pull request updates the chat model configuration and adds tests covering webhook error handling in detail.',
+        },
+        repository: { name: 'reviewer', owner: { login: 'webbertakken' } },
+      })
+
+      // Act
+      const response = await workerHandler.fetch(
+        req,
+        { ...createTestEnv(), MOCK_GPT: 'false' },
+        ctx,
+      )
+      await Promise.all(waitUntilPromises)
+
+      // Assert
+      expect(response.status).toBe(200)
+      expect(JSON.parse(openAiRequestBody)).toMatchObject({ model: 'gpt-4o-mini' })
+      expect(captureException).toHaveBeenCalledTimes(1)
+      expect(captureException).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Model completion request failed' }),
+      )
     })
   })
 })

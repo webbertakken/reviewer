@@ -19,6 +19,21 @@ const MAX_UPSTREAM_GATEWAY_STATUS = 599
 export const isTransientUpstreamStatus = (status: number): boolean =>
   status >= MIN_UPSTREAM_GATEWAY_STATUS && status <= MAX_UPSTREAM_GATEWAY_STATUS
 
+export const unwrapWebhookErrors = (error: unknown): unknown[] => {
+  if (typeof error !== 'object' || error === null) return [error]
+
+  if ('errors' in error && Array.isArray(error.errors) && error.errors.length > 0) {
+    return error.errors.flatMap(unwrapWebhookErrors)
+  }
+
+  if (Symbol.iterator in error && typeof error[Symbol.iterator] === 'function') {
+    const items = Array.from(error as Iterable<unknown>)
+    if (items.length > 0) return items.flatMap(unwrapWebhookErrors)
+  }
+
+  return [error]
+}
+
 export const isTransientUpstreamError = (error: unknown): boolean => {
   if (typeof error !== 'object' || error === null) return false
 
@@ -26,11 +41,10 @@ export const isTransientUpstreamError = (error: unknown): boolean => {
     return isTransientUpstreamStatus(error.status)
   }
 
-  if ('errors' in error && Array.isArray(error.errors) && error.errors.length > 0) {
-    return error.errors.every(isTransientUpstreamError)
-  }
+  const unwrapped = unwrapWebhookErrors(error)
+  if (unwrapped.length === 1 && unwrapped[0] === error) return false
 
-  return false
+  return unwrapped.every(isTransientUpstreamError)
 }
 
 export const createFetchWithUpstreamRetry = (

@@ -8,7 +8,11 @@ import { Octokit } from '@octokit/rest'
 import { createAppAuth } from '@octokit/auth-app'
 import { WebhookEvent } from './domain/WebhookEvent.mjs'
 import { initSentry } from './config/initSentry.mjs'
-import { createFetchWithUpstreamRetry, isTransientUpstreamError } from './services/GitHub.mjs'
+import {
+  createFetchWithUpstreamRetry,
+  isTransientUpstreamError,
+  unwrapWebhookErrors,
+} from './services/GitHub.mjs'
 
 export default {
   async fetch(request: Request, env: Env, context: ExecutionContext): Promise<Response> {
@@ -113,8 +117,10 @@ export default {
               console.warn('Transient upstream gateway response while processing event:', error)
               return
             }
-            console.error('Error while processing event.', error)
-            sentry.captureException(error)
+            for (const cause of unwrapWebhookErrors(error)) {
+              console.error('Error while processing event.', cause)
+              sentry.captureException(cause)
+            }
           }),
       )
 
