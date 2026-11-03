@@ -20,4 +20,8 @@ export class WebhookEvent {
 
     return { owner, repo, repository }
   }
+
+  static getInstallationId(event: EmitterWebhookEvent<'pull_request'>): number | null {
+    return event.payload.installation?.id ?? null
+  }
 }
