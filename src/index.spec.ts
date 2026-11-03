@@ -65,14 +65,17 @@ describe('Worker', () => {
       SENTRY_DSN: 'https://public@sentry.example.com/1',
     })
 
-    const createSignedWebhookRequest = (payload: Record<string, unknown>): WorkerRequest => {
+    const createSignedWebhookRequest = (
+      payload: Record<string, unknown>,
+      eventName = 'pull_request',
+    ): WorkerRequest => {
       const body = JSON.stringify(payload)
       const signature = `sha256=${createHmac('sha256', webhookSecret).update(body).digest('hex')}`
       return new Request('https://hooks.code-reviewer.net/', {
         method: 'POST',
         headers: {
           'CF-Ray': 'test-ray-id',
-          'X-GitHub-Event': 'pull_request',
+          'X-GitHub-Event': eventName,
           'X-Hub-Signature-256': signature,
           'Content-Type': 'application/json',
         },
@@ -232,6 +235,33 @@ describe('Worker', () => {
       expect(captureException).toHaveBeenCalledWith(
         expect.objectContaining({ message: 'Model completion request failed' }),
       )
+    })
+
+    it('ignores unused webhook events without reporting exceptions', async () => {
+      // Arrange
+      const captureException = vi.fn()
+      vi.spyOn(initSentryModule, 'initSentry').mockReturnValue({
+        captureException,
+        captureMessage: vi.fn(),
+      } as never)
+      const eventsToSkip = [
+        'check_run',
+        'installation',
+        'issue_comment',
+        'pull_request_review',
+        'pull_request_review_comment',
+        'pull_request_review_thread',
+        'status',
+      ]
+
+      // Act & Assert
+      for (const eventName of eventsToSkip) {
+        const req = createSignedWebhookRequest({ action: 'created' }, eventName)
+        const response = await workerHandler.fetch(req, createTestEnv(), createExecutionContext())
+        expect(response.status).toBe(200)
+        expect(await response.text()).toBe('OK')
+      }
+      expect(captureException).not.toHaveBeenCalled()
     })
   })
 })
