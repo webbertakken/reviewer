@@ -263,5 +263,66 @@ describe('Worker', () => {
       }
       expect(captureException).not.toHaveBeenCalled()
     })
+
+    it('returns 400 without reporting exceptions when webhook headers or JSON body are invalid', async () => {
+      // Arrange
+      const captureException = vi.fn()
+      vi.spyOn(initSentryModule, 'initSentry').mockReturnValue({
+        captureException,
+        captureMessage: vi.fn(),
+      } as never)
+
+      const missingHeadersRequest = new Request('https://hooks.code-reviewer.net/', {
+        method: 'POST',
+        body: 'invalid-json-payload',
+      }) as unknown as WorkerRequest
+
+      const emptyBodyRequest = new Request('https://hooks.code-reviewer.net/', {
+        method: 'POST',
+        headers: {
+          'CF-Ray': 'test-ray-id',
+          'X-GitHub-Event': 'pull_request',
+          'X-Hub-Signature-256': 'sha256=invalid',
+        },
+        body: '',
+      }) as unknown as WorkerRequest
+
+      const malformedJsonRequest = new Request('https://hooks.code-reviewer.net/', {
+        method: 'POST',
+        headers: {
+          'CF-Ray': 'test-ray-id',
+          'X-GitHub-Event': 'pull_request',
+          'X-Hub-Signature-256': 'sha256=invalid',
+          'Content-Type': 'application/json',
+        },
+        body: '{invalid-json',
+      }) as unknown as WorkerRequest
+
+      // Act
+      const missingHeadersResponse = await workerHandler.fetch(
+        missingHeadersRequest,
+        createTestEnv(),
+        createExecutionContext(),
+      )
+      const emptyBodyResponse = await workerHandler.fetch(
+        emptyBodyRequest,
+        createTestEnv(),
+        createExecutionContext(),
+      )
+      const malformedJsonResponse = await workerHandler.fetch(
+        malformedJsonRequest,
+        createTestEnv(),
+        createExecutionContext(),
+      )
+
+      // Assert
+      expect(missingHeadersResponse.status).toBe(400)
+      expect(await missingHeadersResponse.text()).toBe('Invalid event')
+      expect(emptyBodyResponse.status).toBe(400)
+      expect(await emptyBodyResponse.text()).toBe('Invalid request body')
+      expect(malformedJsonResponse.status).toBe(400)
+      expect(await malformedJsonResponse.text()).toBe('Invalid request body')
+      expect(captureException).not.toHaveBeenCalled()
+    })
   })
 })
