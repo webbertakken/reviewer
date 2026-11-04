@@ -26,10 +26,15 @@ export default {
       if (request.method === 'GET') return new Response('OK', { status: 200 })
       if (request.method !== 'POST') return new Response('Invalid method', { status: 400 })
 
+      // Event
+      const id = request.headers.get('CF-Ray') || 'local'
+      const signature = request.headers.get('X-Hub-Signature-256') || ''
+      const eventName = request.headers.get('X-GitHub-Event') as WebhookEventName
+      if (!eventName || !id || !signature) return new Response('Invalid event', { status: 400 })
+
       // Get request info
       const requestBody = await request.text()
-      if (!requestBody) throw new Error('Request body is empty')
-      const requestPayload = JSON.parse(requestBody)
+      if (!requestBody) return new Response('Invalid request body', { status: 400 })
 
       // Log request (veryVerbose only)
       if (veryVerbose) {
@@ -37,11 +42,15 @@ export default {
         console.log('Request:', JSON.stringify(requestHeaders, null, 2), requestBody)
       }
 
-      // Event
-      const id = request.headers.get('CF-Ray') || 'local'
-      const signature = request.headers.get('X-Hub-Signature-256') || ''
-      const eventName = request.headers.get('X-GitHub-Event') as WebhookEventName
-      if (!eventName || !id || !signature) return new Response('Invalid event', { status: 400 })
+      let requestPayload: Parameters<typeof WebhookEvent.create>[2]
+      try {
+        requestPayload = JSON.parse(requestBody)
+      } catch {
+        return new Response('Invalid request body', { status: 400 })
+      }
+      if (!requestPayload || typeof requestPayload !== 'object' || Array.isArray(requestPayload)) {
+        return new Response('Invalid request body', { status: 400 })
+      }
       const event = WebhookEvent.create(id, eventName, requestPayload)
       if (verbose) console.log(`Event: ${event.name} (${event.id})`)
 
