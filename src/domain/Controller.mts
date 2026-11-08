@@ -1,4 +1,4 @@
-import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
+import type { EmitterWebhookEvent } from '@octokit/webhooks'
 import { createPullRequestActions } from './PullRequestActions.mjs'
 import type { Config } from '../config/config.mjs'
 

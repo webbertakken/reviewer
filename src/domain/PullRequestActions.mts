@@ -1,5 +1,5 @@
 import { GitHub } from '../services/GitHub.mjs'
-import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
+import type { EmitterWebhookEvent } from '@octokit/webhooks'
 import { dedent } from 'ts-dedent'
 import { Config } from '../config/config.mjs'
 import { Gpt } from '../services/Gpt.mjs'

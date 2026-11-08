@@ -1,6 +1,6 @@
 import { vi, it, describe, expect, beforeEach } from 'vitest'
 import { createController } from './Controller.mjs'
-import { EmitterWebhookEvent } from '@octokit/webhooks/dist-types/types.js'
+import type { EmitterWebhookEvent } from '@octokit/webhooks'
 import { createConfig } from '../config/config.mjs'
 import { Env } from '../config/env.mjs'
 
