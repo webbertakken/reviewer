@@ -91,6 +91,13 @@ export default {
         console.log('App initialised')
       }
 
+      // Verify request
+      if (!(await app.webhooks.verify(requestBody, signature))) {
+        console.warn(`Rejected ${event.name} (${event.id}): signature does not match`)
+        return new Response('Invalid signature', { status: 401 })
+      }
+      if (verbose) console.log('Verified')
+
       // GitHub API client
       const { auth } = config.gitHub.api
       const topLevelClient = new Octokit({
@@ -120,10 +127,6 @@ export default {
       app.webhooks.on('pull_request.opened', controller.onOpened)
       app.webhooks.on('pull_request.reopened', controller.onReopened)
       app.webhooks.on('pull_request.edited', controller.onEdited)
-
-      // Verify request
-      await app.webhooks.verify(requestBody, signature)
-      if (verbose) console.log('Verified')
 
       // Handle request
       context.waitUntil(
