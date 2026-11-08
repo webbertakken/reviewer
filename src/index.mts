@@ -3,7 +3,7 @@ import { Env } from './config/env.mjs'
 import { Config, createConfig } from './config/config.mjs'
 import { Controller, createController } from './domain/Controller.mjs'
 import { App as GitHubApp } from 'octokit'
-import { WebhookEventName } from '@octokit/webhooks-types'
+import type { EmitterWebhookEventName } from '@octokit/webhooks'
 import { Octokit } from '@octokit/rest'
 import { createAppAuth } from '@octokit/auth-app'
 import { WebhookEvent } from './domain/WebhookEvent.mjs'
@@ -29,7 +29,7 @@ export default {
       // Event
       const id = request.headers.get('CF-Ray') || 'local'
       const signature = request.headers.get('X-Hub-Signature-256') || ''
-      const eventName = request.headers.get('X-GitHub-Event') as WebhookEventName
+      const eventName = request.headers.get('X-GitHub-Event') as EmitterWebhookEventName
       if (!eventName || !id || !signature) return new Response('Invalid event', { status: 400 })
 
       // Get request info
@@ -101,10 +101,8 @@ export default {
       if (verbose) console.log('Top level API client initialised')
 
       // Installation ID
-      // @ts-expect-error - find correct types
       const { owner, repo, repository } = WebhookEvent.getRepository(event)
       console.log(repository, owner, repo)
-      // @ts-expect-error - find correct types
       let installationId = WebhookEvent.getInstallationId(event)
       if (!installationId) {
         const { data: installation } = await topLevelClient.apps.getRepoInstallation({
