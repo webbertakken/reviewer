@@ -149,6 +149,32 @@ describe('Worker', () => {
       expect(fetchSpy).not.toHaveBeenCalled()
     })
 
+    it('rejects webhooks whose signature does not match the secret', async () => {
+      // Arrange
+      const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      const context = createExecutionContext()
+      const signed = createSignedWebhookRequest({
+        action: 'opened',
+        installation: { id: 1337 },
+        repository: { name: 'reviewer', owner: { login: 'webbertakken' } },
+      })
+      const headers = new Headers(signed.headers as unknown as Headers)
+      headers.set('X-Hub-Signature-256', `sha256=${'0'.repeat(64)}`)
+      const forged = new Request(signed.url, {
+        method: 'POST',
+        headers,
+        body: await signed.text(),
+      }) as unknown as WorkerRequest
+
+      // Act
+      const response = await workerHandler.fetch(forged, createTestEnv(), context)
+
+      // Assert
+      expect(response.status).toBe(401)
+      expect(context.waitUntil).not.toHaveBeenCalled()
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+
     it('classifies upstream gateway errors including wrapped webhook errors', () => {
       const iterableWrapper = {
         *[Symbol.iterator]() {
