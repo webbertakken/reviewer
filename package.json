@@ -32,6 +32,7 @@
     "@octokit/auth-app": "^8.0.0",
     "@octokit/rest": "^22.0.0",
     "@octokit/types": "^18.0.0",
+    "@octokit/webhooks": "^14.2.0",
     "chatgpt": "^5.2.5",
     "dotenv": "^18.0.0",
     "esm": "^3.2.25",

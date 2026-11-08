@@ -1174,7 +1174,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/webhooks@npm:^14.0.0":
+"@octokit/webhooks@npm:^14.0.0, @octokit/webhooks@npm:^14.2.0":
   version: 14.2.0
   resolution: "@octokit/webhooks@npm:14.2.0"
   dependencies:
@@ -3916,6 +3916,7 @@ __metadata:
     "@octokit/auth-app": ^8.0.0
     "@octokit/rest": ^22.0.0
     "@octokit/types": ^18.0.0
+    "@octokit/webhooks": ^14.2.0
     "@types/jest": ^30.0.0
     "@typescript/native": "npm:typescript@^7.0.2"
     "@vitest/coverage-v8": ^4.1.12
