@@ -17,7 +17,7 @@
     "coverage": "vitest --coverage",
     "typecheck": "tsc --pretty --noEmit",
     "format": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "lint-staged": {
     "*.@(ts|tsx|mts)": "bash -c 'tsc --skipLibCheck --noEmit'",
