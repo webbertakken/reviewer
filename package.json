@@ -51,7 +51,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^4.2.1",
     "globals": "^17.13.0",
-    "husky": "=8.0.3",
+    "husky": "=9.1.7",
     "lint-staged": "=13.2.1",
     "nodemon": "^2.0.22",
     "prettier": "^2.8.8",
