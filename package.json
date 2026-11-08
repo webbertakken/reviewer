@@ -36,7 +36,7 @@
     "dotenv": "^18.0.0",
     "esm": "^3.2.25",
     "octokit": "^3.2.2",
-    "toucan-js": "^3.1.0",
+    "toucan-js": "^4.0.0",
     "ts-dedent": "^2.2.0",
     "wrangler": "^3.2.0"
   },
