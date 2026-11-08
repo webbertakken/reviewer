@@ -5,7 +5,7 @@
   "type": "module",
   "exports": "./index.js",
   "engines": {
-    "node": ">=22.19.0"
+    "node": ">=22.22.1"
   },
   "scripts": {
     "dev": "wrangler dev src/index.mts",
@@ -52,7 +52,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.13.0",
     "husky": "=9.1.7",
-    "lint-staged": "=13.2.1",
+    "lint-staged": "=17.6.0",
     "nodemon": "^3.0.0",
     "prettier": "^3.0.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
