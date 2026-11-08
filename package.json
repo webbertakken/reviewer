@@ -5,7 +5,7 @@
   "type": "module",
   "exports": "./index.js",
   "engines": {
-    "node": ">=18"
+    "node": ">=22.22.1"
   },
   "scripts": {
     "dev": "wrangler dev src/index.mts",
@@ -75,7 +75,7 @@
   },
   "packageManager": "yarn@3.6.0",
   "volta": {
-    "node": "20.20.2",
+    "node": "24.22.2",
     "yarn": "3.6.0"
   }
 }
