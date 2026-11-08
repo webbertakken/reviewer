@@ -5,7 +5,7 @@
   "type": "module",
   "exports": "./index.js",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "dev": "wrangler dev src/index.mts",
@@ -43,6 +43,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@vitest/coverage-v8": "^4.1.12",
     "@vitest/eslint-plugin": "^1.6.28",
     "concurrently": "^10.0.0",
@@ -54,7 +55,7 @@
     "lint-staged": "=13.2.1",
     "nodemon": "^3.0.0",
     "prettier": "^3.0.0",
-    "typescript": "^5.1.5",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "^8.72.1",
     "vitest": "^4.1.12"
   },

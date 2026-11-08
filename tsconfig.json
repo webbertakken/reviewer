@@ -6,9 +6,8 @@
     "module": "NodeNext",
     "declaration": true,
     "inlineSourceMap": true,
-    "esModuleInterop": false /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
     "useDefineForClassFields": true,
-    "lib": ["ES2015", "DOM", "DOM.Iterable"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     //    "types": ["@cloudflare/workers-types"],
     "typeRoots": ["node_modules/@types", "src/types"],
@@ -30,7 +29,6 @@
     /* Strict Type-Checking Options */
     "noImplicitAny": true /* Raise error on expressions and declarations with an implied 'any' type. */,
     "noImplicitThis": true /* Raise error on 'this' expressions with an implied 'any' type. */,
-    "alwaysStrict": false /* Parse in strict mode and emit "use strict" for each source file. - conflicts with CJS */,
     // "strictNullChecks": true /* Enable strict null checks. */,
     // "strictFunctionTypes": true /* Enable strict checking of function types. */,
     // "strictPropertyInitialization": true /* Enable strict checking of property initialization in classes. */,
