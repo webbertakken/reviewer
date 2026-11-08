@@ -43,6 +43,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@vitest/coverage-v8": "^4.1.12",
     "@vitest/eslint-plugin": "^1.6.28",
     "concurrently": "^10.0.0",
@@ -54,12 +55,12 @@
     "lint-staged": "=17.6.0",
     "nodemon": "^3.0.0",
     "prettier": "^3.0.0",
-    "typescript": "^5.1.5",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "^8.72.1",
     "vitest": "^4.1.12"
   },
   "resolutions": {
-    "undici@^5.28.5": "^6.29.1",
+    "undici@^5.28.5": "^8.0.0",
     "zod@3.22.3": "^4.6.6",
     "sharp@^0.33.5": "^0.35.5",
     "esbuild@0.17.19": "^0.25.0",
