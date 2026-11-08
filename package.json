@@ -53,13 +53,13 @@
     "husky": "=9.1.7",
     "lint-staged": "=13.2.1",
     "nodemon": "^3.0.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "typescript": "^5.1.5",
     "typescript-eslint": "^8.72.1",
     "vitest": "^4.1.12"
   },
   "resolutions": {
-    "uuid@^9.0.0": "^11.1.1",
+    "uuid@^9.0.0": "^14.0.0",
     "@octokit/plugin-paginate-rest@^6.1.2": "^9.2.2",
     "@octokit/request@^6.0.0": "^8.4.1",
     "@octokit/request@^7.0.0": "^8.4.1",
