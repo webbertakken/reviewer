@@ -16,8 +16,39 @@ export type PullRequestFiles = Array<{ contents: string } & PullRequestFilesRaw[
 const MIN_UPSTREAM_GATEWAY_STATUS = 502
 const MAX_UPSTREAM_GATEWAY_STATUS = 599
 
+const INTERNAL_SERVER_ERROR_STATUS = 500
+const TEMPORARILY_UNAVAILABLE_ERROR_CODE = 'not_available'
+
 export const isTransientUpstreamStatus = (status: number): boolean =>
   status >= MIN_UPSTREAM_GATEWAY_STATUS && status <= MAX_UPSTREAM_GATEWAY_STATUS
+
+/**
+ * GitHub answers some server errors with a body whose `errors` mark a resource as
+ * temporarily unavailable (for example while it is too busy to compute it); a retry can succeed.
+ */
+const reportsTemporarilyUnavailableResource = (body: unknown): boolean =>
+  typeof body === 'object' &&
+  body !== null &&
+  'errors' in body &&
+  Array.isArray(body.errors) &&
+  body.errors.some(
+    (error: unknown) =>
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === TEMPORARILY_UNAVAILABLE_ERROR_CODE,
+  )
+
+const isTransientUpstreamResponse = async (response: Response): Promise<boolean> => {
+  if (isTransientUpstreamStatus(response.status)) return true
+  if (response.status !== INTERNAL_SERVER_ERROR_STATUS) return false
+
+  const body: unknown = await response
+    .clone()
+    .json()
+    .catch(() => null)
+  return reportsTemporarilyUnavailableResource(body)
+}
 
 export const unwrapWebhookErrors = (error: unknown): unknown[] => {
   if (typeof error !== 'object' || error === null) return [error]
@@ -38,7 +69,15 @@ export const isTransientUpstreamError = (error: unknown): boolean => {
   if (typeof error !== 'object' || error === null) return false
 
   if ('status' in error && typeof error.status === 'number') {
-    return isTransientUpstreamStatus(error.status)
+    if (isTransientUpstreamStatus(error.status)) return true
+    return (
+      error.status === INTERNAL_SERVER_ERROR_STATUS &&
+      'response' in error &&
+      typeof error.response === 'object' &&
+      error.response !== null &&
+      'data' in error.response &&
+      reportsTemporarilyUnavailableResource(error.response.data)
+    )
   }
 
   const unwrapped = unwrapWebhookErrors(error)
@@ -55,7 +94,7 @@ export const createFetchWithUpstreamRetry = (
   return async (input, init) => {
     for (let attempt = 0; ; attempt++) {
       const response = await baseFetch(input, init)
-      if (!isTransientUpstreamStatus(response.status) || attempt >= retries) {
+      if (attempt >= retries || !(await isTransientUpstreamResponse(response))) {
         return response
       }
       await response.body?.cancel().catch(() => {})
