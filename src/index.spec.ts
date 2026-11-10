@@ -7,7 +7,7 @@ import type { Env } from './config/env.mjs'
 import { createConfig } from './config/config.mjs'
 import * as initSentryModule from './config/initSentry.mjs'
 import workerHandler from './index.mjs'
-import { isTransientUpstreamError } from './services/GitHub.mjs'
+import { createFetchWithUpstreamRetry, isTransientUpstreamError } from './services/GitHub.mjs'
 
 describe('Worker', () => {
   let worker: UnstableDevWorker
@@ -189,6 +189,119 @@ describe('Worker', () => {
       expect(isTransientUpstreamError({ status: 404 })).toBe(false)
       expect(isTransientUpstreamError(new Error('unexpected failure'))).toBe(false)
       expect(isTransientUpstreamError(null)).toBe(false)
+    })
+
+    const temporarilyUnavailableBody = {
+      message: 'Unavailable for now',
+      errors: [{ resource: 'PullRequest', field: 'files', code: 'not_available' }],
+    }
+
+    const createTemporarilyUnavailableResponse = () =>
+      new Response(JSON.stringify(temporarilyUnavailableBody), {
+        status: 500,
+        headers: { 'content-type': 'application/json' },
+      })
+
+    it('classifies server errors that report a temporarily unavailable resource as transient', () => {
+      expect(
+        isTransientUpstreamError({ status: 500, response: { data: temporarilyUnavailableBody } }),
+      ).toBe(true)
+      expect(
+        isTransientUpstreamError({
+          errors: [{ status: 500, response: { data: temporarilyUnavailableBody } }],
+        }),
+      ).toBe(true)
+      expect(
+        isTransientUpstreamError({ status: 500, response: { data: { message: 'Broken' } } }),
+      ).toBe(false)
+      expect(
+        isTransientUpstreamError({ status: 422, response: { data: temporarilyUnavailableBody } }),
+      ).toBe(false)
+    })
+
+    it('retries server errors that report a temporarily unavailable resource', async () => {
+      // Arrange
+      const baseFetch = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(createTemporarilyUnavailableResponse())
+        .mockResolvedValueOnce(new Response('[]', { status: 200 }))
+      const fetchWithRetry = createFetchWithUpstreamRetry(baseFetch, 2, 0)
+
+      // Act
+      const response = await fetchWithRetry('https://api.github.com/example')
+
+      // Assert
+      expect(response.status).toBe(200)
+      expect(baseFetch).toHaveBeenCalledTimes(2)
+    })
+
+    it.each([
+      ['a JSON body', JSON.stringify({ message: 'Broken' })],
+      ['a plain text body', 'Broken'],
+    ])('does not retry other server errors with %s', async (_, body) => {
+      // Arrange
+      const baseFetch = vi.fn<typeof fetch>().mockResolvedValue(new Response(body, { status: 500 }))
+      const fetchWithRetry = createFetchWithUpstreamRetry(baseFetch, 2, 0)
+
+      // Act
+      const response = await fetchWithRetry('https://api.github.com/example')
+
+      // Assert
+      expect(response.status).toBe(500)
+      expect(await response.text()).toBe(body)
+      expect(baseFetch).toHaveBeenCalledTimes(1)
+    })
+
+    it('logs instead of reporting when changed files stay temporarily unavailable', async () => {
+      // Arrange
+      const captureException = vi.fn()
+      vi.spyOn(initSentryModule, 'initSentry').mockReturnValue({
+        captureException,
+        captureMessage: vi.fn(),
+      } as never)
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      let changedFilesRequests = 0
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+        const url = typeof input === 'string' ? input : input.toString()
+        if (url.endsWith('/access_tokens')) {
+          return new Response(
+            JSON.stringify({ token: 'ghs_test', expires_at: '2099-01-01T00:00:00Z' }),
+            { status: 201, headers: { 'content-type': 'application/json' } },
+          )
+        }
+        if (url.endsWith('/pulls/9/files')) {
+          changedFilesRequests++
+          return createTemporarilyUnavailableResponse()
+        }
+        throw new Error(`Unexpected request to ${url}`)
+      })
+      const waitUntilPromises: Promise<unknown>[] = []
+      const ctx: ExecutionContext = {
+        waitUntil: (promise: Promise<unknown>) => {
+          waitUntilPromises.push(promise)
+        },
+        passThroughOnException: vi.fn(),
+        props: {},
+      }
+      const req = createSignedWebhookRequest({
+        action: 'synchronize',
+        installation: { id: 1337 },
+        pull_request: { number: 9, title: 'Update the configuration', body: '' },
+        repository: { name: 'reviewer', owner: { login: 'webbertakken' } },
+      })
+
+      // Act
+      const response = await workerHandler.fetch(req, createTestEnv(), ctx)
+      await Promise.all(waitUntilPromises)
+
+      // Assert
+      expect(response.status).toBe(200)
+      expect(changedFilesRequests).toBe(3)
+      expect(captureException).not.toHaveBeenCalled()
+      expect(warn).toHaveBeenCalledWith(
+        'Transient upstream gateway response while processing event:',
+        expect.objectContaining({ errors: [expect.objectContaining({ status: 500 })] }),
+      )
     })
 
     it('defaults chat model to gpt-4o-mini and supports GPT_MODEL override', () => {
