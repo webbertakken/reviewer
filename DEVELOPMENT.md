@@ -19,6 +19,9 @@
 yarn
 ```
 
+This also installs the pre-commit hook, which runs `lint-staged` on staged files.
+If `.husky/_` goes missing while `node_modules` stays, run `yarn husky` to restore it.
+
 ### Environment variables
 
 Create a `.env` file in the root of the project
