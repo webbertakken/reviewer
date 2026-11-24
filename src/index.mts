@@ -54,31 +54,12 @@ export default {
       const event = WebhookEvent.create(id, eventName, requestPayload)
       if (verbose) console.log(`Event: ${event.name} (${event.id})`)
 
-      // Skip unused events
-      const unusedEvents = [
-        'check_run',
-        'check_suite',
-        'commit_comment',
-        'installation',
-        'installation_repositories',
-        'issue_comment',
-        'pull_request_review',
-        'pull_request_review_comment',
-        'pull_request_review_thread',
-        'push',
-        'status',
-      ]
-      if (unusedEvents.includes(event.name)) return new Response('OK', { status: 200 })
-
-      // Log errors for unhandled events
-      const handledEvents = ['ping', 'pull_request']
-      if (!handledEvents.includes(event.name)) {
-        sentry.captureException(new Error(`Unhandled: ${event.name} ${event.payload?.action}`))
+      // Acknowledge every event the app does not act on; GitHub sends whatever it is subscribed to
+      if (event.name !== 'pull_request') {
+        const qualifiedName = [event.name, event.payload?.action].filter(Boolean).join('.')
+        console.log(`Ignored ${qualifiedName} (${event.id})`)
         return new Response('OK', { status: 200 })
       }
-
-      // Prefilter events
-      if (event.name === 'ping') return new Response('OK', { status: 200 })
 
       // GitHub App client
       const { appId, privateKey, webhooks, oauth } = config.gitHub.app
