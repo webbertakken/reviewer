@@ -403,6 +403,34 @@ describe('Worker', () => {
       expect(captureException).not.toHaveBeenCalled()
     })
 
+    it('acknowledges events it does not act on, including names it has never seen', async () => {
+      // Arrange
+      const captureException = vi.fn()
+      vi.spyOn(initSentryModule, 'initSentry').mockReturnValue({
+        captureException,
+        captureMessage: vi.fn(),
+      } as never)
+      const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const eventsNotActedOn: Array<[string, Record<string, unknown>, string]> = [
+        ['ping', { zen: 'Keep it logically awesome.' }, 'Ignored ping ('],
+        ['fork', { forkee: {} }, 'Ignored fork ('],
+        ['release', { action: 'published' }, 'Ignored release.published ('],
+        ['sponsorship', { action: 'created' }, 'Ignored sponsorship.created ('],
+        ['star', { action: 'created' }, 'Ignored star.created ('],
+        ['a_future_event', { action: 'happened' }, 'Ignored a_future_event.happened ('],
+      ]
+
+      // Act & Assert
+      for (const [eventName, payload, expectedLog] of eventsNotActedOn) {
+        const req = createSignedWebhookRequest(payload, eventName)
+        const response = await workerHandler.fetch(req, createTestEnv(), createExecutionContext())
+        expect(response.status).toBe(200)
+        expect(await response.text()).toBe('OK')
+        expect(captureException).not.toHaveBeenCalled()
+        expect(log).toHaveBeenCalledWith(expect.stringContaining(expectedLog))
+      }
+    })
+
     it('returns 400 without reporting exceptions when webhook headers or JSON body are invalid', async () => {
       // Arrange
       const captureException = vi.fn()
