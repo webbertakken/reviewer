@@ -312,7 +312,7 @@ describe('Worker', () => {
       expect(captureException).not.toHaveBeenCalled()
       expect(warn).toHaveBeenCalledWith(
         'Transient upstream gateway response while processing event:',
-        expect.objectContaining({ errors: [expect.objectContaining({ status: 500 })] }),
+        'GET /repos/{owner}/{repo}/pulls/{pull_number}/files failed with 500 (request id unknown)',
       )
     })
 
@@ -461,8 +461,9 @@ describe('Worker', () => {
       expect(JSON.stringify(captureException.mock.calls)).not.toContain('ghs_test')
       expect(error).toHaveBeenCalledWith(
         'Error while processing event.',
-        expect.objectContaining({ message: expectedMessage }),
+        'POST /repos/{owner}/{repo}/issues/{issue_number}/comments failed with 500 (request C0DE:1234)',
       )
+      expect(JSON.stringify(error.mock.calls)).not.toContain('ghs_test')
     })
 
     it('adds the reason GitHub gives to a failed request report', async () => {
@@ -483,6 +484,65 @@ describe('Worker', () => {
         requestId: null,
       })
       expect(isTransientUpstreamError(failure)).toBe(false)
+    })
+
+    it('reports a failed installation lookup with its route and responds 500', async () => {
+      // Arrange
+      const captureException = vi.fn()
+      vi.spyOn(initSentryModule, 'initSentry').mockReturnValue({
+        captureException,
+        captureMessage: vi.fn(),
+      } as never)
+      vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async () => forbiddenResponse())
+      const req = createSignedWebhookRequest({
+        action: 'closed',
+        repository: { name: 'reviewer', owner: { login: 'webbertakken' } },
+      })
+
+      // Act
+      const response = await workerHandler.fetch(req, createTestEnv(), createExecutionContext())
+
+      // Assert
+      expect(response.status).toBe(500)
+      expect(captureException).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message:
+            'GET /repos/{owner}/{repo}/installation failed with 403: Resource not accessible by integration',
+        }),
+        expect.objectContaining({
+          captureContext: expect.objectContaining({
+            tags: expect.objectContaining({ 'github.status': '403' }),
+          }),
+        }),
+      )
+    })
+
+    it('keeps webhook payloads out of verbose logs', async () => {
+      // Arrange
+      const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const waitUntilPromises: Promise<unknown>[] = []
+      const ctx: ExecutionContext = {
+        waitUntil: (promise: Promise<unknown>) => {
+          waitUntilPromises.push(promise)
+        },
+        passThroughOnException: vi.fn(),
+        props: {},
+      }
+      const req = createSignedWebhookRequest({
+        action: 'closed',
+        installation: { id: 1337 },
+        pull_request: { number: 9, title: 'Update the configuration', body: 'payload-only text' },
+        repository: { name: 'reviewer', owner: { login: 'webbertakken' } },
+      })
+
+      // Act
+      await workerHandler.fetch(req, { ...createTestEnv(), APP_VERBOSE: 'true' }, ctx)
+      await Promise.all(waitUntilPromises)
+
+      // Assert
+      expect(log).toHaveBeenCalledWith('pull_request (test-ray-id)')
+      expect(JSON.stringify(log.mock.calls)).not.toContain('payload-only text')
     })
 
     it('keeps the connection failure when GitHub sends no response', async () => {
