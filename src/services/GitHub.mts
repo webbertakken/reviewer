@@ -135,6 +135,12 @@ export class GitHubRequestError extends Error {
     this.response = { data: responseData }
   }
 
+  /** What a log may keep of this failure: the request and GitHub's answer, never its contents. */
+  get logLine(): string {
+    const request = this.requestId ? `request ${this.requestId}` : 'request id unknown'
+    return `${this.method} ${this.route} failed with ${this.status} (${request})`
+  }
+
   get sentryContext() {
     return {
       tags: {

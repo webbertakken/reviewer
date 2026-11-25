@@ -9,6 +9,10 @@ compatibility_flags = ["nodejs_compat_v2"]
 [placement]
 mode = "smart"
 
+# Keep the Worker's console output in Workers Logs, so a failure can be read after the fact.
+[observability]
+enabled = true
+
 [env.production]
 name = "code-reviewer"
 vars = { ENVIRONMENT = "production", MODE = "production" }

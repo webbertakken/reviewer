@@ -312,7 +312,7 @@ describe('Worker', () => {
       expect(captureException).not.toHaveBeenCalled()
       expect(warn).toHaveBeenCalledWith(
         'Transient upstream gateway response while processing event:',
-        expect.objectContaining({ errors: [expect.objectContaining({ status: 500 })] }),
+        'GET /repos/{owner}/{repo}/pulls/{pull_number}/files failed with 500 (request id unknown)',
       )
     })
 
@@ -461,8 +461,9 @@ describe('Worker', () => {
       expect(JSON.stringify(captureException.mock.calls)).not.toContain('ghs_test')
       expect(error).toHaveBeenCalledWith(
         'Error while processing event.',
-        expect.objectContaining({ message: expectedMessage }),
+        'POST /repos/{owner}/{repo}/issues/{issue_number}/comments failed with 500 (request C0DE:1234)',
       )
+      expect(JSON.stringify(error.mock.calls)).not.toContain('ghs_test')
     })
 
     it('adds the reason GitHub gives to a failed request report', async () => {
@@ -515,6 +516,33 @@ describe('Worker', () => {
           }),
         }),
       )
+    })
+
+    it('keeps webhook payloads out of verbose logs', async () => {
+      // Arrange
+      const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const waitUntilPromises: Promise<unknown>[] = []
+      const ctx: ExecutionContext = {
+        waitUntil: (promise: Promise<unknown>) => {
+          waitUntilPromises.push(promise)
+        },
+        passThroughOnException: vi.fn(),
+        props: {},
+      }
+      const req = createSignedWebhookRequest({
+        action: 'closed',
+        installation: { id: 1337 },
+        pull_request: { number: 9, title: 'Update the configuration', body: 'payload-only text' },
+        repository: { name: 'reviewer', owner: { login: 'webbertakken' } },
+      })
+
+      // Act
+      await workerHandler.fetch(req, { ...createTestEnv(), APP_VERBOSE: 'true' }, ctx)
+      await Promise.all(waitUntilPromises)
+
+      // Assert
+      expect(log).toHaveBeenCalledWith('pull_request (test-ray-id)')
+      expect(JSON.stringify(log.mock.calls)).not.toContain('payload-only text')
     })
 
     it('keeps the connection failure when GitHub sends no response', async () => {
