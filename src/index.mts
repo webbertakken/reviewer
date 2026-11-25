@@ -23,6 +23,8 @@ export default {
       error instanceof GitHubRequestError
         ? sentry.captureException(error, { captureContext: error.sentryContext })
         : sentry.captureException(error)
+    const loggable = (error: unknown) =>
+      error instanceof GitHubRequestError ? error.logLine : error
 
     try {
       // Show that service is healthy. Don't serve anything other than post
@@ -68,10 +70,8 @@ export default {
       const { appId, privateKey, webhooks, oauth } = config.gitHub.app
       const app = new GitHubApp({ appId, privateKey, webhooks, oauth })
       if (verbose) {
-        app.webhooks.onAny((event) => console.log(`${event.name} (${event.id})`, event.payload))
-        app.webhooks.onError(({ name, event, message }) =>
-          console.error(name, message, event.payload),
-        )
+        app.webhooks.onAny((event) => console.log(`${event.name} (${event.id})`))
+        app.webhooks.onError(({ name, event }) => console.error(`${name} (${event.id})`))
         console.log('App initialised')
       }
 
@@ -116,11 +116,16 @@ export default {
           .then(() => verbose && console.log('Event processed. 🎉'))
           .catch((error) => {
             if (isTransientUpstreamError(error)) {
-              console.warn('Transient upstream gateway response while processing event:', error)
+              for (const cause of unwrapWebhookErrors(error)) {
+                console.warn(
+                  'Transient upstream gateway response while processing event:',
+                  loggable(cause),
+                )
+              }
               return
             }
             for (const cause of unwrapWebhookErrors(error)) {
-              console.error('Error while processing event.', cause)
+              console.error('Error while processing event.', loggable(cause))
               report(cause)
             }
           }),
@@ -131,13 +136,13 @@ export default {
       return new Response('{ ok: true }', { status: 200 })
     } catch (error) {
       if (isTransientUpstreamError(error)) {
-        console.warn('Transient upstream gateway response:', error)
+        console.warn('Transient upstream gateway response:', loggable(error))
         return new Response('Upstream service unavailable', {
           status: 503,
           headers: { 'Retry-After': '5' },
         })
       }
-      console.error('Error caught:', error)
+      console.error('Error caught:', loggable(error))
       report(error)
       return new Response(`An error occurred ${error}`, { status: 500 })
     }
