@@ -485,6 +485,38 @@ describe('Worker', () => {
       expect(isTransientUpstreamError(failure)).toBe(false)
     })
 
+    it('reports a failed installation lookup with its route and responds 500', async () => {
+      // Arrange
+      const captureException = vi.fn()
+      vi.spyOn(initSentryModule, 'initSentry').mockReturnValue({
+        captureException,
+        captureMessage: vi.fn(),
+      } as never)
+      vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async () => forbiddenResponse())
+      const req = createSignedWebhookRequest({
+        action: 'closed',
+        repository: { name: 'reviewer', owner: { login: 'webbertakken' } },
+      })
+
+      // Act
+      const response = await workerHandler.fetch(req, createTestEnv(), createExecutionContext())
+
+      // Assert
+      expect(response.status).toBe(500)
+      expect(captureException).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message:
+            'GET /repos/{owner}/{repo}/installation failed with 403: Resource not accessible by integration',
+        }),
+        expect.objectContaining({
+          captureContext: expect.objectContaining({
+            tags: expect.objectContaining({ 'github.status': '403' }),
+          }),
+        }),
+      )
+    })
+
     it('keeps the connection failure when GitHub sends no response', async () => {
       // Arrange
       const octokit = createGitHubClient({
