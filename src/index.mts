@@ -4,12 +4,11 @@ import { Config, createConfig } from './config/config.mjs'
 import { Controller, createController } from './domain/Controller.mjs'
 import { App as GitHubApp } from 'octokit'
 import type { EmitterWebhookEventName } from '@octokit/webhooks'
-import { Octokit } from '@octokit/rest'
-import { createAppAuth } from '@octokit/auth-app'
 import { WebhookEvent } from './domain/WebhookEvent.mjs'
 import { initSentry } from './config/initSentry.mjs'
 import {
-  createFetchWithUpstreamRetry,
+  createGitHubClient,
+  GitHubRequestError,
   isTransientUpstreamError,
   unwrapWebhookErrors,
 } from './services/GitHub.mjs'
@@ -20,6 +19,10 @@ export default {
     const config: Config = createConfig(env)
     const sentry = initSentry(config.sentry, request, context)
     const { verbose, veryVerbose } = config.app
+    const report = (error: unknown) =>
+      error instanceof GitHubRequestError
+        ? sentry.captureException(error, { captureContext: error.sentryContext })
+        : sentry.captureException(error)
 
     try {
       // Show that service is healthy. Don't serve anything other than post
@@ -81,11 +84,7 @@ export default {
 
       // GitHub API client
       const { auth } = config.gitHub.api
-      const topLevelClient = new Octokit({
-        authStrategy: createAppAuth,
-        auth,
-        request: { fetch: createFetchWithUpstreamRetry() },
-      })
+      const topLevelClient = createGitHubClient({ auth })
       if (verbose) console.log('Top level API client initialised')
 
       // Installation ID
@@ -122,7 +121,7 @@ export default {
             }
             for (const cause of unwrapWebhookErrors(error)) {
               console.error('Error while processing event.', cause)
-              sentry.captureException(cause)
+              report(cause)
             }
           }),
       )
@@ -139,7 +138,7 @@ export default {
         })
       }
       console.error('Error caught:', error)
-      sentry.captureException(error)
+      report(error)
       return new Response(`An error occurred ${error}`, { status: 500 })
     }
   },

@@ -105,6 +105,102 @@ export const createFetchWithUpstreamRetry = (
   }
 }
 
+type GitHubRequestFailure = {
+  readonly method: string
+  readonly route: string
+  readonly status: number
+  readonly reason: string
+  readonly requestId: string | null
+}
+
+/**
+ * A GitHub API request that failed, described by what was asked and how GitHub answered,
+ * so a report can be acted on even when GitHub's response carries no message.
+ */
+export class GitHubRequestError extends Error {
+  override readonly name = 'GitHubRequestError'
+  readonly method: string
+  readonly route: string
+  readonly status: number
+  readonly requestId: string | null
+  readonly response: { readonly data: unknown }
+
+  constructor(failure: GitHubRequestFailure, responseData: unknown, cause: unknown) {
+    const summary = `${failure.method} ${failure.route} failed with ${failure.status}`
+    super(failure.reason ? `${summary}: ${failure.reason}` : summary, { cause })
+    this.method = failure.method
+    this.route = failure.route
+    this.status = failure.status
+    this.requestId = failure.requestId
+    this.response = { data: responseData }
+  }
+
+  get sentryContext() {
+    return {
+      tags: {
+        'github.method': this.method,
+        'github.route': this.route,
+        'github.status': String(this.status),
+      },
+      extra: { 'github.requestId': this.requestId },
+    }
+  }
+}
+
+type OctokitFailure = Error & {
+  status: number
+  response?: { data?: unknown; headers: Record<string, string | number | undefined> }
+}
+
+const isOctokitFailure = (error: unknown): error is OctokitFailure =>
+  error instanceof Error && 'status' in error && typeof error.status === 'number'
+
+const gitHubReason = (responseData: unknown): string =>
+  typeof responseData === 'object' &&
+  responseData !== null &&
+  'message' in responseData &&
+  typeof responseData.message === 'string'
+    ? responseData.message
+    : ''
+
+/**
+ * Names the request (method and route template, never its parameters or headers) on an error
+ * Octokit raises for a GitHub response or a failed connection; any other error passes through.
+ */
+export const describeGitHubRequestError = (
+  error: unknown,
+  request: { method: string; url: string },
+): unknown => {
+  if (!isOctokitFailure(error)) return error
+
+  const { response } = error
+  const requestId = response?.headers['x-github-request-id']
+  const failure = {
+    method: request.method,
+    route: request.url,
+    status: error.status,
+    reason: response ? gitHubReason(response.data) : error.message,
+    requestId: typeof requestId === 'string' ? requestId : null,
+  }
+  return new GitHubRequestError(failure, response?.data, error)
+}
+
+type GitHubClientOptions = {
+  auth?: Config['gitHub']['api']['auth'] & { installationId?: number }
+  fetch?: typeof fetch
+}
+
+export const createGitHubClient = ({ auth, fetch }: GitHubClientOptions = {}): Octokit => {
+  const client = new Octokit({
+    ...(auth && { authStrategy: createAppAuth, auth }),
+    request: { fetch: createFetchWithUpstreamRetry(fetch) },
+  })
+  client.hook.error('request', (error, request) => {
+    throw describeGitHubRequestError(error, request)
+  })
+  return client
+}
+
 export class GitHub {
   private readonly client: Octokit
   private readonly meta: { owner: string; repo: string }
@@ -119,11 +215,7 @@ export class GitHub {
 
     this.meta = { owner, repo }
 
-    this.client = new Octokit({
-      authStrategy: createAppAuth,
-      auth: { ...auth, installationId },
-      request: { fetch: createFetchWithUpstreamRetry() },
-    })
+    this.client = createGitHubClient({ auth: { ...auth, installationId } })
   }
 
   async getMostRecentPr(): Promise<PullRequest | null> {
