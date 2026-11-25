@@ -7,7 +7,19 @@ import type { Env } from './config/env.mjs'
 import { createConfig } from './config/config.mjs'
 import * as initSentryModule from './config/initSentry.mjs'
 import workerHandler from './index.mjs'
-import { createFetchWithUpstreamRetry, isTransientUpstreamError } from './services/GitHub.mjs'
+import {
+  createFetchWithUpstreamRetry,
+  createGitHubClient,
+  describeGitHubRequestError,
+  GitHubRequestError,
+  isTransientUpstreamError,
+} from './services/GitHub.mjs'
+
+const forbiddenResponse = () =>
+  new Response(JSON.stringify({ message: 'Resource not accessible by integration' }), {
+    status: 403,
+    headers: { 'content-type': 'application/json' },
+  })
 
 describe('Worker', () => {
   let worker: UnstableDevWorker
@@ -374,6 +386,136 @@ describe('Worker', () => {
       expect(captureException).toHaveBeenCalledWith(
         expect.objectContaining({ message: 'Model completion request failed' }),
       )
+    })
+
+    it('reports a failed GitHub request with its method, route and status', async () => {
+      // Arrange
+      const captureException = vi.fn()
+      vi.spyOn(initSentryModule, 'initSentry').mockReturnValue({
+        captureException,
+        captureMessage: vi.fn(),
+      } as never)
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+      let commentRequests = 0
+      vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+        const url = typeof input === 'string' ? input : input.toString()
+        if (url.endsWith('/access_tokens')) {
+          return new Response(
+            JSON.stringify({ token: 'ghs_test', expires_at: '2099-01-01T00:00:00Z' }),
+            { status: 201, headers: { 'content-type': 'application/json' } },
+          )
+        }
+        if (url.endsWith('/issues/9/comments') && init?.method === 'GET') {
+          return new Response('[]', {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          })
+        }
+        if (url.endsWith('/issues/9/comments') && init?.method === 'POST') {
+          commentRequests++
+          return new Response('', {
+            status: 500,
+            headers: { 'content-type': 'application/json', 'x-github-request-id': 'C0DE:1234' },
+          })
+        }
+        throw new Error(`Unexpected request to ${url}`)
+      })
+      const waitUntilPromises: Promise<unknown>[] = []
+      const ctx: ExecutionContext = {
+        waitUntil: (promise: Promise<unknown>) => {
+          waitUntilPromises.push(promise)
+        },
+        passThroughOnException: vi.fn(),
+        props: {},
+      }
+      const req = createSignedWebhookRequest({
+        action: 'edited',
+        installation: { id: 1337 },
+        pull_request: { number: 9, title: 'Update the configuration', body: '' },
+        repository: { name: 'reviewer', owner: { login: 'webbertakken' } },
+      })
+
+      // Act
+      const response = await workerHandler.fetch(req, createTestEnv(), ctx)
+      await Promise.all(waitUntilPromises)
+
+      // Assert
+      const expectedMessage =
+        'POST /repos/{owner}/{repo}/issues/{issue_number}/comments failed with 500'
+      expect(response.status).toBe(200)
+      expect(commentRequests).toBe(1)
+      expect(captureException).toHaveBeenCalledTimes(1)
+      expect(captureException).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'GitHubRequestError', message: expectedMessage }),
+        {
+          captureContext: {
+            tags: {
+              'github.method': 'POST',
+              'github.route': '/repos/{owner}/{repo}/issues/{issue_number}/comments',
+              'github.status': '500',
+            },
+            extra: { 'github.requestId': 'C0DE:1234' },
+          },
+        },
+      )
+      expect(JSON.stringify(captureException.mock.calls)).not.toContain('ghs_test')
+      expect(error).toHaveBeenCalledWith(
+        'Error while processing event.',
+        expect.objectContaining({ message: expectedMessage }),
+      )
+    })
+
+    it('adds the reason GitHub gives to a failed request report', async () => {
+      // Arrange
+      const octokit = createGitHubClient({ fetch: async () => forbiddenResponse() })
+
+      // Act
+      const failure = await octokit.rest.issues
+        .createComment({ owner: 'o', repo: 'r', issue_number: 1, body: 'hi' })
+        .catch((error: unknown) => error)
+
+      // Assert
+      expect(failure).toBeInstanceOf(GitHubRequestError)
+      expect(failure).toMatchObject({
+        message:
+          'POST /repos/{owner}/{repo}/issues/{issue_number}/comments failed with 403: Resource not accessible by integration',
+        status: 403,
+        requestId: null,
+      })
+      expect(isTransientUpstreamError(failure)).toBe(false)
+    })
+
+    it('keeps the connection failure when GitHub sends no response', async () => {
+      // Arrange
+      const octokit = createGitHubClient({
+        fetch: async () => {
+          throw new Error('Network connection lost.')
+        },
+      })
+
+      // Act
+      const failure = await octokit.rest.pulls
+        .listFiles({ owner: 'o', repo: 'r', pull_number: 1 })
+        .catch((error: unknown) => error)
+
+      // Assert
+      expect(failure).toMatchObject({
+        name: 'GitHubRequestError',
+        message:
+          'GET /repos/{owner}/{repo}/pulls/{pull_number}/files failed with 500: Network connection lost.',
+        requestId: null,
+      })
+    })
+
+    it('passes errors that carry no response status through unchanged', () => {
+      // Arrange
+      const error = new Error('Invalid private key')
+
+      // Act
+      const described = describeGitHubRequestError(error, { method: 'GET', url: '/app' })
+
+      // Assert
+      expect(described).toBe(error)
     })
 
     it('ignores unused webhook events without reporting exceptions', async () => {
